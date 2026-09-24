@@ -7,10 +7,10 @@ Icon
 Thumbs.db
 Desktop.ini
 
-# Obsidian — per-user / volatile state (keep the rest of .obsidian/ shared)
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/cache
+# Obsidian — per-user / volatile state (the rest of .obsidian/ stays shared)
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/cache
 .trash/
 
 # Temp / editor
