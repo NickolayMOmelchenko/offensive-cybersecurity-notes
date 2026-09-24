@@ -1,6 +1,6 @@
 # Linux — Enumeration & Privilege Escalation
 
-Checklist for going from user shell to root on an authorized engagement. Run [[Linux Overview|LinPEAS/lse.sh]] to automate, but understand each vector so you can act on the output. Prefer misconfigs over kernel exploits.
+Checklist for going from user shell to root on an authorized engagement. Run [LinPEAS/lse.sh](Linux%20Overview.md) to automate, but understand each vector so you can act on the output. Prefer misconfigs over kernel exploits.
 
 ## Enumeration checklist
 
@@ -44,7 +44,12 @@ sudo less /etc/profile      # then type  !/bin/sh
 - Custom SUID binaries: check what they exec and whether they use a relative path (PATH hijack).
 
 ### Capabilities
-- `cap_setuid+ep` on something scriptable (e.g. python) → set uid 0. Concept: python with the setuid capability can call `os.setuid(0)` then spawn a shell.
+- `cap_setuid+ep` on something scriptable (e.g. python) → set uid 0.
+
+```bash
+getcap -r / 2>/dev/null | grep cap_setuid            # find the capability
+python3 -c 'import os; os.setuid(0); os.system("/bin/sh")'
+```
 
 ### Cron / scheduled jobs
 - Root cron running a script you can write, or a wildcard/relative-path command in a writable dir → inject your command. pspy reveals jobs not visible in your crontab.
@@ -65,9 +70,9 @@ sudo less /etc/profile      # then type  !/bin/sh
 Impacket is **not** a local Linux privesc tool — the vectors above (SUID, sudo, cron, capabilities, kernel) are how you get root on a Linux target. Impacket runs *from* your Linux attack box against **Windows/AD**. It becomes relevant here in two cases:
 
 - **Pivoting:** you root a Linux host, find domain creds in configs/keytabs, and use them with Impacket to attack the Windows side.
-- **Domain-joined Linux** (SSSD/realmd): loot `/etc/krb5.keytab`, cached tickets in `/tmp/krb5cc_*`, or `/etc/sssd/` — those AD creds/tickets feed straight into Impacket and [[../AD/Kerberos Attacks|pass-the-ticket]].
+- **Domain-joined Linux** (SSSD/realmd): loot `/etc/krb5.keytab`, cached tickets in `/tmp/krb5cc_*`, or `/etc/sssd/` — those AD creds/tickets feed straight into Impacket and [pass-the-ticket](../AD/Kerberos%20Attacks.md).
 
-Full setup, delivery, and the escalation scripts: [[../AD/Impacket Toolkit]].
+Full setup, delivery, and the escalation scripts: [Impacket Toolkit](../AD/Impacket%20Toolkit.md).
 
 ## Defense / detection (for the report)
 

@@ -4,6 +4,14 @@ This repo is an Obsidian vault of security notes (`Obsidian Vault/`), published 
 
 Don't touch `.obsidian/workspace.json`, `.DS_Store` files, or the PDFs/DOCX in `Offense/GPEN Cheatsheet/`.
 
+## Internal links (note-to-note)
+
+Use **standard Markdown links**, not Obsidian `[[wikilinks]]`. GitHub and the VS Code preview render `[[Note Name]]` as literal text with the brackets showing; only Obsidian resolves it.
+
+- Format: `[display text](relative/Path%20To%20Note.md)`.
+- Path is relative to the linking note; **URL-encode** it — space → `%20`, `&` → `%26` (e.g. `[Kerberos](Kerberos%20Attacks.md)`, `[spray](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)`). Obsidian resolves these too, so links work in both.
+- Never write `[[Note]]` or `[[Note|text]]` for note links. (Image embeds are covered separately below.)
+
 ## Image format
 
 Check the whole vault with:

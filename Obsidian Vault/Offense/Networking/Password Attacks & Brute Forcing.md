@@ -12,7 +12,7 @@ The GPEN "password attacks" phase: credential attacks across services + offline 
 | **Password spraying** | One password across many users | AD — avoids lockout (see below) |
 | **Credential stuffing** | Reuse known breached `user:pass` pairs | When you have a breach corpus for the org |
 
-Core distinction: **online** (against a live service — slow, noisy, lockout risk) vs **offline** (against captured hashes — fast, silent, no lockout). **Prefer offline whenever you have hashes** (dumped via [[../AD/Impacket Toolkit|secretsdump]] or [[../AD/Lateral Movement & Credential Access]]).
+Core distinction: **online** (against a live service — slow, noisy, lockout risk) vs **offline** (against captured hashes — fast, silent, no lockout). **Prefer offline whenever you have hashes** (dumped via [secretsdump](../AD/Impacket%20Toolkit.md) or [Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md)).
 
 ## Enumerate before you brute (don't attack blind)
 
@@ -32,7 +32,7 @@ nxc smb <dc-ip> -u <user> -p <pass> --users --shares --pass-pol
 smtp-user-enum -M VRFY -U users.txt -t <target>
 ```
 
-Build target user lists from OSINT (name conventions), RID cycling ([[Enumeration]]), and these tools.
+Build target user lists from OSINT (name conventions), RID cycling ([Enumeration](../AD/Enumeration.md)), and these tools.
 
 ## Wordlists
 
@@ -119,7 +119,7 @@ zip2john secret.zip > zip.hash ; john zip.hash      # crack a protected archive
 | `1800` | sha512crypt (`/etc/shadow`) |
 | `3200` | bcrypt |
 | `5600` | NetNTLMv2 (Responder captures) |
-| `13100` | Kerberoast (RC4) — see [[../AD/Kerberos Attacks]] |
+| `13100` | Kerberoast (RC4) — see [Kerberos Attacks](../AD/Kerberos%20Attacks.md) |
 | `18200` | AS-REP roast |
 | `22000` | WPA/WPA2 |
 
@@ -144,4 +144,4 @@ Rule: stay **below** the lockout threshold, wait out the observation window betw
 
 - **Lockout policy** + **MFA** everywhere; long passphrases and a **banned-password list** (blocks `Season+Year!`).
 - Disable legacy/cleartext protocols (Telnet, FTP, SMBv1); rate-limit and **fail2ban** on SSH/RDP.
-- Detect: **4625** logon-failure spikes, **many users / one password** in a short window (spraying), **4771/4768** Kerberos pre-auth failures, and NetNTLMv2 capture from LLMNR/NBT-NS poisoning ([[Networking Overview]]).
+- Detect: **4625** logon-failure spikes, **many users / one password** in a short window (spraying), **4771/4768** Kerberos pre-auth failures, and NetNTLMv2 capture from LLMNR/NBT-NS poisoning ([Networking Overview](Networking%20Overview.md)).

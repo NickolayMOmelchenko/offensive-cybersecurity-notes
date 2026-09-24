@@ -26,11 +26,11 @@ Reference handouts for the **GPEN** certification and SANS **SEC560** course. Th
 
 ## Related vault notes
 
-- [[../AD/AD Attacks Overview|Active Directory attacks]]
-- [[../Linux/Linux Overview|Linux post-exploitation]]
-- [[../Networking/Networking Overview|Networking & pivoting]]
-- [[../Networking/Password Attacks & Brute Forcing|Password attacks & brute forcing]]
-- [[../Windows/Windows Overview|Windows offense]]
+- [Active Directory attacks](../AD/AD%20Attacks%20Overview.md)
+- [Linux post-exploitation](../Linux/Linux%20Overview.md)
+- [Networking & pivoting](../Networking/Networking%20Overview.md)
+- [Password attacks & brute forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
+- [Windows offense](../Windows/Windows%20Overview.md)
 
 ## The GPEN methodology (the phases the exam tests)
 

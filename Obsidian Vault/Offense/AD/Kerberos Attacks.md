@@ -1,6 +1,6 @@
 # Active Directory — Kerberos Attacks
 
-Kerberos is the default AD auth protocol; most privilege-escalation paths abuse how it issues tickets. Study-note level; see [[AD Attacks Overview]] and [[Enumeration]] first.
+Kerberos is the default AD auth protocol; most privilege-escalation paths abuse how it issues tickets. Study-note level; see [AD Attacks Overview](AD%20Attacks%20Overview.md) and [Enumeration](Enumeration.md) first.
 
 ## How Kerberos works (the 30-second version)
 
@@ -47,7 +47,7 @@ hashcat -m 18200 asrep.hashes wordlist.txt
 
 - **Unconstrained delegation:** a host set for it caches the TGTs of anyone who connects. Compromise that host, harvest TGTs (including DA if you can coerce one to authenticate). High impact — flag it.
 - **Constrained delegation:** account can request tickets to *specific* services on behalf of users; abuse via S4U to impersonate.
-- **Resource-based constrained delegation (RBCD):** if you can write `msDS-AllowedToActOnBehalfOfOtherIdentity` on a computer object (an ACL edge from [[Enumeration]]), you can impersonate any user to it.
+- **Resource-based constrained delegation (RBCD):** if you can write `msDS-AllowedToActOnBehalfOfOtherIdentity` on a computer object (an ACL edge from [Enumeration](Enumeration.md)), you can impersonate any user to it.
 - **Defense:** avoid unconstrained delegation, mark sensitive accounts "cannot be delegated" / add to Protected Users, lock down write access to computer objects.
 
 ## Forged tickets (domain dominance — report, don't overuse)
@@ -55,6 +55,21 @@ hashcat -m 18200 asrep.hashes wordlist.txt
 - **Golden ticket:** forged **TGT** signed with the **krbtgt** hash → impersonate anyone, including DA, for the ticket's lifetime. Requires you already own the domain (you have krbtgt). Proof of full compromise.
 - **Silver ticket:** forged **TGS** signed with a single service account's hash → access just that service, stealthier, no DC contact.
 - **Defense:** the only real remediation for golden tickets is rotating the krbtgt password **twice**; treat krbtgt hash exposure as full-domain compromise.
+
+## Using tickets (pass-the-ticket)
+
+```bash
+# Linux: request a TGT with creds, then reuse the ccache (Impacket reads KRB5CCNAME)
+getTGT.py <domain>/<user>:<pass> -dc-ip <dc>
+export KRB5CCNAME=<user>.ccache
+psexec.py -k -no-pass <domain>/<target-host>
+```
+
+```powershell
+# Windows: inject a .kirbi into the current logon session (Rubeus), then confirm
+Rubeus.exe ptt /ticket:ticket.kirbi
+klist
+```
 
 ## Detection summary
 

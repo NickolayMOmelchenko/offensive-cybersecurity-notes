@@ -1,8 +1,8 @@
 # Impacket Toolkit — Escalation & Delivery
 
-[Impacket](https://github.com/fortra/impacket) is a set of Python classes + example scripts implementing Windows network protocols (SMB, MSRPC, Kerberos, LDAP). It runs **from your attack box** (Linux, or Windows with Python) and targets **Windows/AD** services over the network. Authorized engagements only — see [[AD Attacks Overview]].
+[Impacket](https://github.com/fortra/impacket) is a set of Python classes + example scripts implementing Windows network protocols (SMB, MSRPC, Kerberos, LDAP). It runs **from your attack box** (Linux, or Windows with Python) and targets **Windows/AD** services over the network. Authorized engagements only — see [AD Attacks Overview](AD%20Attacks%20Overview.md).
 
-> **Windows vs Linux scope.** Impacket escalates on **Windows/AD**: local-admin → SYSTEM (exec tools) and domain-user → Domain Admin (credential/Kerberos/relay tools). It is **not** a local **Linux privesc** tool — for a Linux *target* use the vectors in [[../Linux/Enumeration & Privilege Escalation]] (GTFOBins, SUID, sudo, capabilities). Impacket only touches Linux as the *attacker* platform, or when a Linux box is domain-joined and you reuse AD creds against it.
+> **Windows vs Linux scope.** Impacket escalates on **Windows/AD**: local-admin → SYSTEM (exec tools) and domain-user → Domain Admin (credential/Kerberos/relay tools). It is **not** a local **Linux privesc** tool — for a Linux *target* use the vectors in [Enumeration & Privilege Escalation](../Linux/Enumeration%20%26%20Privilege%20Escalation.md) (GTFOBins, SUID, sudo, capabilities). Impacket only touches Linux as the *attacker* platform, or when a Linux box is domain-joined and you reuse AD creds against it.
 
 ## Naming: `Example.py` vs `impacket-example`
 
@@ -103,7 +103,7 @@ getST.py -spn cifs/<target> -impersonate Administrator <domain>/<svc-acct>:<pass
 ticketer.py -nthash <krbtgt-hash> -domain-sid <sid> -domain <domain> Administrator
 ```
 
-See [[Kerberos Attacks]] for the theory behind these.
+See [Kerberos Attacks](Kerberos%20Attacks.md) for the theory behind these.
 
 ### D. NTLM relay (escalate without cracking)
 
@@ -120,7 +120,7 @@ ntlmrelayx.py -t ldap://<dc> --delegate-access
 ## Putting it together — end-to-end delivery walkthrough
 
 1. **Set up** Impacket on the attack box (Step 1).
-2. **Get initial domain creds** from [[Enumeration]] (spray, capture, or provided).
+2. **Get initial domain creds** from [Enumeration](Enumeration.md) (spray, capture, or provided).
 3. **Find where you're local admin:** `nxc smb <subnet> -u <user> -p <pass>`.
 4. **`secretsdump.py`** that host → collect more NT hashes / local-admin creds.
 5. **`psexec.py` / `wmiexec.py`** with a privileged hash → **SYSTEM** on the next host.

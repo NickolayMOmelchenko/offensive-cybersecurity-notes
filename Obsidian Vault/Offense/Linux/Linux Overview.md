@@ -5,7 +5,7 @@ Index for the Linux post-exploitation notes. Scope: what to do **after** you lan
 ## Post-exploitation loop
 
 1. **Stabilize** the shell (below).
-2. **[[Enumeration & Privilege Escalation|Enumerate]]** — who am I, what can I reach, what is misconfigured.
+2. **[Enumerate](Enumeration%20%26%20Privilege%20Escalation.md)** — who am I, what can I reach, what is misconfigured.
 3. **Escalate** to root via a concrete misconfig (SUID, sudo, cron, capability, kernel).
 4. **Loot & pivot** — creds, keys, config, then use the host as a foothold into the network.
 5. **Document** everything for the report and clean up artifacts you created.
@@ -33,9 +33,15 @@ ip a; ss -tulpn         # interfaces and listening services (pivot targets)
 - **Exploit suggestion:** Linux Exploit Suggester (kernel), GTFOBins (abuse legit binaries).
 - **Loot:** manual grep for keys/creds, then transfer off-host.
 
+```bash
+# Quick loot sweep
+grep -rIl -e 'password' -e 'secret' -e 'api_key' /etc /opt /var/www 2>/dev/null
+find / \( -name 'id_rsa' -o -name '*.kdbx' -o -name '.env' \) 2>/dev/null
+```
+
 ## Notes in this folder
 
-- [[Enumeration & Privilege Escalation]] — the main checklist and the common escalation vectors
+- [Enumeration & Privilege Escalation](Enumeration%20%26%20Privilege%20Escalation.md) — the main checklist and the common escalation vectors
 
 ## Principle
 

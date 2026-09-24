@@ -1,6 +1,6 @@
 # Active Directory — Enumeration
 
-Recon of the domain once you have any foothold (even an unprivileged user or just network access). Goal: build a map of principals, groups, ACLs, and services so you can find a path. See [[AD Attacks Overview]] for where this sits.
+Recon of the domain once you have any foothold (even an unprivileged user or just network access). Goal: build a map of principals, groups, ACLs, and services so you can find a path. See [AD Attacks Overview](AD%20Attacks%20Overview.md) for where this sits.
 
 ## Unauthenticated / from the network
 
@@ -52,14 +52,22 @@ Find-LocalAdminAccess            # hosts where you are local admin
 Get-NetGPO; Get-DomainObjectAcl  # delegated rights / ACL abuse paths
 ```
 
-The Kerberoastable and AS-REP-roastable results feed straight into [[Kerberos Attacks]].
+The Kerberoastable and AS-REP-roastable results feed straight into [Kerberos Attacks](Kerberos%20Attacks.md).
+
+Collect BloodHound data from a Windows host with SharpHound:
+
+```powershell
+Import-Module .\SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All -ZipFileName loot.zip
+# or the standalone binary:  SharpHound.exe -c All,GPOLocalGroup
+```
 
 ## What to look for (the checklist)
 
 - Users with **SPNs** or **no Kerberos pre-auth** (crackable offline).
 - **Nested group membership** into privileged groups (Domain/Enterprise Admins, Backup Operators, DnsAdmins, Account Operators).
 - **ACL edges:** `GenericAll`, `GenericWrite`, `WriteDACL`, `WriteOwner`, `ForceChangePassword`, `AddMember`.
-- **Delegation** flags on accounts (unconstrained / constrained / resource-based) — see [[Kerberos Attacks]].
+- **Delegation** flags on accounts (unconstrained / constrained / resource-based) — see [Kerberos Attacks](Kerberos%20Attacks.md).
 - **Passwords in places they shouldn't be:** SYSVOL scripts, GPP `cpassword`, description fields, shares.
 - **Stale/legacy:** hosts unsupported OS, LLMNR/NBT-NS enabled (poisoning), SMB signing off.
 

