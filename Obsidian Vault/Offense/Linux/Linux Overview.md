@@ -17,7 +17,7 @@ python3 -c 'import pty;pty.spawn("/bin/bash")'   # upgrade dumb shell
 # then: Ctrl-Z, stty raw -echo; fg, export TERM=xterm
 ```
 
-Also try `script /dev/null -c bash`. A proper TTY makes `sudo`, `su`, and job control work.
+Also try `script -qc /bin/bash /dev/null`. A proper TTY makes `sudo`, `su`, and job control work.
 
 ## Orientation one-liners
 

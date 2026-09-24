@@ -4,7 +4,7 @@ Index and mental model for the AD notes in this folder. AD is the identity backb
 
 ## The kill chain (how the notes fit together)
 
-1. **Foothold** — one set of domain credentials or code execution on one domain-joined host. Often from phishing, a weak service, or password spray.
+1. **Foothold** — one set of domain credentials or code execution on one domain-joined host. Often from phishing, a weak service, or [[../Networking/Password Attacks & Brute Forcing|password spray]].
 2. **[[Enumeration]]** — map users, groups, computers, ACLs, and trust. You attack what you can see; enumeration is 80% of AD work.
 3. **Credential access** — pull hashes/tickets from memory, disk, or the directory. See [[Lateral Movement & Credential Access]].
 4. **Privilege escalation** — local admin → domain user → privileged group → Domain Admin, usually via misconfigured ACLs, [[Kerberos Attacks|Kerberos]], or delegation.
@@ -17,7 +17,7 @@ Index and mental model for the AD notes in this folder. AD is the identity backb
 | --- | --- |
 | BloodHound / SharpHound | Graph ACL + session data to find attack paths |
 | PowerView / ADModule | Ad-hoc PowerShell enumeration |
-| Impacket | Python implementations of SMB/Kerberos/DCE-RPC attacks |
+| Impacket | Python implementations of SMB/Kerberos/DCE-RPC attacks — see [[Impacket Toolkit]] |
 | Rubeus | Kerberos abuse from Windows |
 | Mimikatz / nanodump | Credential extraction from memory/registry |
 | CrackMapExec / NetExec | Sweep many hosts for access, shares, and creds |
@@ -39,6 +39,7 @@ For each finding note the detection and fix, not just the exploit: tiered admin 
 - [[Enumeration]] — recon of the domain
 - [[Kerberos Attacks]] — Kerberoasting, AS-REP roasting, delegation, forged tickets
 - [[Lateral Movement & Credential Access]] — hashes, tickets, and host-to-host movement
+- [[Impacket Toolkit]] — the Impacket scripts for exec, credential access, Kerberos, and relay, with setup + delivery
 
 ## References
 

