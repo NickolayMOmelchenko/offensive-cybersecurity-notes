@@ -1,0 +1,42 @@
+# Linux — Offensive Notes Overview
+
+Index for the Linux post-exploitation notes. Scope: what to do **after** you land a shell on a Linux host during an authorized test — orient, enumerate, escalate, and understand the impact. Getting the initial shell is a service/web problem covered elsewhere.
+
+## Post-exploitation loop
+
+1. **Stabilize** the shell (below).
+2. **[[Enumeration & Privilege Escalation|Enumerate]]** — who am I, what can I reach, what is misconfigured.
+3. **Escalate** to root via a concrete misconfig (SUID, sudo, cron, capability, kernel).
+4. **Loot & pivot** — creds, keys, config, then use the host as a foothold into the network.
+5. **Document** everything for the report and clean up artifacts you created.
+
+## Stabilize a shell (do this first)
+
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'   # upgrade dumb shell
+# then: Ctrl-Z, stty raw -echo; fg, export TERM=xterm
+```
+
+Also try `script /dev/null -c bash`. A proper TTY makes `sudo`, `su`, and job control work.
+
+## Orientation one-liners
+
+```bash
+id; hostname; uname -a; cat /etc/os-release
+sudo -l                 # what can I run as root without/with a password
+ip a; ss -tulpn         # interfaces and listening services (pivot targets)
+```
+
+## Tooling
+
+- **Enumeration:** LinPEAS, linux-smart-enumeration (lse.sh), pspy (watch cron/processes without root).
+- **Exploit suggestion:** Linux Exploit Suggester (kernel), GTFOBins (abuse legit binaries).
+- **Loot:** manual grep for keys/creds, then transfer off-host.
+
+## Notes in this folder
+
+- [[Enumeration & Privilege Escalation]] — the main checklist and the common escalation vectors
+
+## Principle
+
+Prefer **misconfiguration over kernel exploits**. Sudo rules, SUID binaries, writable cron, and capabilities are reliable and low-risk; kernel exploits can crash the box (bad on a client engagement). Always confirm scope before running anything that could cause instability.
