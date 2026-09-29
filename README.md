@@ -13,6 +13,7 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
   - [Enumeration](Obsidian%20Vault/Offense/AD/Enumeration.md)
   - [Impacket Toolkit](Obsidian%20Vault/Offense/AD/Impacket%20Toolkit.md)
   - [Kerberos Attacks](Obsidian%20Vault/Offense/AD/Kerberos%20Attacks.md)
+  - [Privilege Escalation](Obsidian%20Vault/Offense/AD/Privilege%20Escalation.md)
   - [Lateral Movement & Credential Access](Obsidian%20Vault/Offense/AD/Lateral%20Movement%20%26%20Credential%20Access.md)
   - [Attacking the Domain Controller](Obsidian%20Vault/Offense/AD/Attacking%20the%20Domain%20Controller.md)
 - **GPEN Cheatsheet/**
@@ -26,6 +27,7 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
 - **Linux/**
   - [Linux Overview](Obsidian%20Vault/Offense/Linux/Linux%20Overview.md)
   - [Enumeration & Privilege Escalation](Obsidian%20Vault/Offense/Linux/Enumeration%20%26%20Privilege%20Escalation.md)
+  - [Privilege Escalation](Obsidian%20Vault/Offense/Linux/Privilege%20Escalation.md)
 - **Networking/**
   - [Networking Overview](Obsidian%20Vault/Offense/Networking/Networking%20Overview.md)
   - [Password Attacks & Brute Forcing](Obsidian%20Vault/Offense/Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
@@ -37,6 +39,7 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
 - **Windows/**
   - [Windows Overview](Obsidian%20Vault/Offense/Windows/Windows%20Overview.md)
   - [Powershell](Obsidian%20Vault/Offense/Windows/Powershell.md)
+  - [Privilege Escalation](Obsidian%20Vault/Offense/Windows/Privilege%20Escalation.md)
 
 ### Defense
 

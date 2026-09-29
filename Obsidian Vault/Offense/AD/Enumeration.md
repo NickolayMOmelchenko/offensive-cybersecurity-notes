@@ -34,6 +34,46 @@ bloodhound-python -u <user> -p <pass> -d <domain> -ns <dc-ip> -c All
 
 `windapsearch` is a friendlier alternative to raw `ldapsearch` for users/groups/computers.
 
+## SMB enumeration (445)
+
+SMB is the richest early source on a Windows/AD network — shares, users, password policy, and live sessions, often before you're privileged. Try it unauthenticated first, then with any creds you have.
+
+```bash
+# Banner + signing + dialect (signing:False = NTLM-relay target)
+nxc smb <subnet>                              # sweep: hostname, domain, OS, signing, SMBv1
+nxc smb <subnet> --gen-relay-list relay.txt   # save hosts with SMB signing disabled
+
+# Null / guest sessions (often disabled now, still always worth a try)
+nxc smb <target> -u '' -p ''                   # null session
+nxc smb <target> -u guest -p ''                # guest
+smbclient -L //<target> -N                     # list shares with no creds
+rpcclient -U '' -N <target>                    # then: enumdomusers / querydominfo / enumdomgroups
+```
+
+```bash
+# With creds: shares + read/write perms, then loot the readable ones
+nxc smb <target> -u <user> -p <pass> --shares          # per-share READ/WRITE
+smbmap -H <target> -u <user> -p <pass>                 # access map
+smbmap -H <target> -u <user> -p <pass> -R <share>      # recurse a share's tree
+nxc smb <target> -u <user> -p <pass> -M spider_plus    # index files across all shares
+smbclient "//<target>/<share>" -U '<domain>\<user>%<pass>'   # interactive: ls / get / recurse / mget
+```
+
+```bash
+# Users, groups, policy, sessions — this feeds spraying and roasting
+nxc smb <target> -u <user> -p <pass> --users           # domain users (+ badpwdcount)
+nxc smb <target> -u <user> -p <pass> --rid-brute       # users even when --users is blocked
+nxc smb <target> -u <user> -p <pass> --groups --local-groups
+nxc smb <target> -u <user> -p <pass> --pass-pol        # lockout threshold -> safe spray rate
+nxc smb <target> -u <user> -p <pass> --sessions --loggedon-users   # where admins are logged on
+enum4linux-ng -A <target> -u <user> -p <pass>          # one-shot: shares/users/groups/policy
+```
+
+- **Check `--pass-pol` first** — the lockout threshold sets how hard you can [spray](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md); `badpwdcount` from `--users` shows who's near lockout.
+- **`signing:False`** hosts are relay targets — see [Impacket → NTLM relay](Impacket%20Toolkit.md#d-ntlm-relay-escalate-without-cracking).
+- **`--loggedon-users`** across hosts reveals where Domain Admins have sessions → prime [lateral-movement](Lateral%20Movement%20%26%20Credential%20Access.md) targets.
+- Loot shares for **GPP `cpassword`** (SYSVOL), scripts, configs, and keys before moving on.
+
 ## Authenticated — from Windows (PowerView / AD module)
 
 Query the directory the same way admins do, just looking for weaknesses.

@@ -46,6 +46,7 @@ For each finding note the detection and fix, not just the exploit: tiered admin 
 
 - [Enumeration](Enumeration.md) — recon of the domain
 - [Kerberos Attacks](Kerberos%20Attacks.md) — Kerberoasting, AS-REP roasting, delegation, forged tickets
+- [Privilege Escalation](Privilege%20Escalation.md) — domain user → DA: ACL abuse, shadow creds, group/GPO/delegation, AD CS, coercion+relay, noPac
 - [Lateral Movement & Credential Access](Lateral%20Movement%20%26%20Credential%20Access.md) — hashes, tickets, and host-to-host movement
 - [Impacket Toolkit](Impacket%20Toolkit.md) — the Impacket scripts for exec, credential access, Kerberos, and relay, with setup + delivery
 - [Attacking the Domain Controller](Attacking%20the%20Domain%20Controller.md) — end-to-end 4-step chain: foothold → Kerberoast/AS-REP + hashcat → DCSync rights → DCSync/NTDS + golden ticket

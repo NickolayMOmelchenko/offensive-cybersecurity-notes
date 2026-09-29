@@ -28,6 +28,8 @@ find / -writable -type d 2>/dev/null       # writable directories
 
 ## Escalation vectors (map output → action)
 
+> For worked exploitation of each vector (LD_PRELOAD, wildcard/PATH tricks, NFS `no_root_squash`, docker/lxd groups, PwnKit/Dirty Pipe, etc.) see the dedicated [Privilege Escalation](Privilege%20Escalation.md) note.
+
 ### sudo rules (`sudo -l`)
 - A binary you can run as root that GTFOBins lists = instant root. Always check GTFOBins for the exact binary.
 - `env_keep`/`LD_PRELOAD` left in, or a `sudo` version with a known CVE, can also work.

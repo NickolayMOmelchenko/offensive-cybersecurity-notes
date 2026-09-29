@@ -5,6 +5,7 @@ Index for Windows host offense: local enumeration, privilege escalation, and the
 ## Notes in this folder
 
 - [Powershell](Powershell.md) — download-cradle / execution-policy bypass concept
+- [Privilege Escalation](Privilege%20Escalation.md) — local user → SYSTEM: token/potato, service misconfig, AlwaysInstallElevated, cred hunting
 
 ## Local enumeration
 
