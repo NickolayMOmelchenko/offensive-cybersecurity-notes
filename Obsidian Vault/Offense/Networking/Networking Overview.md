@@ -6,6 +6,7 @@ Index for network-layer attacks and the pivoting skills that tie an engagement t
 
 - [VLAN Hopping](VLAN%20Hopping.md) — switch spoofing and double tagging on the link layer
 - [Password Attacks & Brute Forcing](Password%20Attacks%20%26%20Brute%20Forcing.md) — dictionary/brute/spray across protocols + offline hash cracking
+- [Remote Access & Getting a Shell](Remote%20Access%20%26%20Getting%20a%20Shell.md) — SSH, WinRM/evil-winrm, RDP, SMB exec, and DB clients to turn creds into a session
 
 ## Scanning & enumeration (the front door)
 

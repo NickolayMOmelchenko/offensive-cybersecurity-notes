@@ -14,6 +14,7 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
   - [Impacket Toolkit](Obsidian%20Vault/Offense/AD/Impacket%20Toolkit.md)
   - [Kerberos Attacks](Obsidian%20Vault/Offense/AD/Kerberos%20Attacks.md)
   - [Lateral Movement & Credential Access](Obsidian%20Vault/Offense/AD/Lateral%20Movement%20%26%20Credential%20Access.md)
+  - [Attacking the Domain Controller](Obsidian%20Vault/Offense/AD/Attacking%20the%20Domain%20Controller.md)
 - **GPEN Cheatsheet/**
   - [README](Obsidian%20Vault/Offense/GPEN%20Cheatsheet/README.md)
   - [SANS-Pivoting-Cheat-Sheet-v1.2.pdf](Obsidian%20Vault/Offense/GPEN%20Cheatsheet/SANS-Pivoting-Cheat-Sheet-v1.2.pdf)
@@ -28,8 +29,11 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
 - **Networking/**
   - [Networking Overview](Obsidian%20Vault/Offense/Networking/Networking%20Overview.md)
   - [Password Attacks & Brute Forcing](Obsidian%20Vault/Offense/Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
+  - [Remote Access & Getting a Shell](Obsidian%20Vault/Offense/Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)
   - [VLAN Hopping](Obsidian%20Vault/Offense/Networking/VLAN%20Hopping.md)
   - **Screenshots/** — image assets
+- **Tools/**
+  - [Metasploit](Obsidian%20Vault/Offense/Tools/Metasploit.md)
 - **Windows/**
   - [Windows Overview](Obsidian%20Vault/Offense/Windows/Windows%20Overview.md)
   - [Powershell](Obsidian%20Vault/Offense/Windows/Powershell.md)
