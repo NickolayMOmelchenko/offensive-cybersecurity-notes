@@ -4,6 +4,21 @@ Getting from a **low-privileged domain user to higher domain rights** — ultima
 
 > **Authorized engagements only.** Pick the shortest BloodHound path; prove impact minimally and report the rest.
 
+## Contents
+
+- [Where escalation comes from (pick from BloodHound)](#where-escalation-comes-from-pick-from-bloodhound)
+- [Kerberos-based (crack or impersonate)](#kerberos-based-crack-or-impersonate)
+- [ACL abuse (BloodHound edges)](#acl-abuse-bloodhound-edges)
+- [Shadow Credentials (msDS-KeyCredentialLink)](#shadow-credentials-msds-keycredentiallink)
+- [Privileged group abuse](#privileged-group-abuse)
+- [GPO abuse](#gpo-abuse)
+- [Delegation abuse](#delegation-abuse)
+- [AD Certificate Services (ESC1–ESC8)](#ad-certificate-services-esc1esc8)
+- [Coercion + NTLM relay, and noPac](#coercion--ntlm-relay-and-nopac)
+- [After escalation](#after-escalation)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+- [References](#references)
+
 ## Where escalation comes from (pick from BloodHound)
 
 | Vector | You need | Gets you |

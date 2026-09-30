@@ -2,6 +2,16 @@
 
 Kerberos is the default AD auth protocol; most privilege-escalation paths abuse how it issues tickets. Study-note level; see [AD Attacks Overview](AD%20Attacks%20Overview.md) and [Enumeration](Enumeration.md) first.
 
+## Contents
+
+- [How Kerberos works (the 30-second version)](#how-kerberos-works-the-30-second-version)
+- [Kerberoasting](#kerberoasting)
+- [AS-REP Roasting](#as-rep-roasting)
+- [Delegation abuse](#delegation-abuse)
+- [Forged tickets (domain dominance — report, don't overuse)](#forged-tickets-domain-dominance--report-dont-overuse)
+- [Using tickets (pass-the-ticket)](#using-tickets-pass-the-ticket)
+- [Detection summary](#detection-summary)
+
 ## How Kerberos works (the 30-second version)
 
 - **AS-REQ/AS-REP:** client proves identity to the KDC, gets a **TGT** (encrypted with the krbtgt hash).

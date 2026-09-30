@@ -2,6 +2,16 @@
 
 The GPEN "password attacks" phase: credential attacks across services + offline hash cracking. **Authorized engagements only.** Online brute forcing is loud and can **lock accounts / cause DoS** — confirm scope and the lockout policy before you touch a live service.
 
+## Contents
+
+- [Attack types (pick the right one)](#attack-types-pick-the-right-one)
+- [Enumerate before you brute (don't attack blind)](#enumerate-before-you-brute-dont-attack-blind)
+- [Wordlists](#wordlists)
+- [Online brute forcing by protocol](#online-brute-forcing-by-protocol)
+- [Offline hash cracking](#offline-hash-cracking)
+- [Password spraying (the safe AD default)](#password-spraying-the-safe-ad-default)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+
 ## Attack types (pick the right one)
 
 | Type | What it does | When to use |

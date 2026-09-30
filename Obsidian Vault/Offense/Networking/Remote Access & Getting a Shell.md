@@ -4,6 +4,16 @@ How to **authenticate into a service and get command execution** once you have v
 
 > Getting the *creds* is a separate problem — see [Password Attacks & Brute Forcing](Password%20Attacks%20%26%20Brute%20Forcing.md). Getting *code exec* from a web/service **vulnerability** (rather than valid creds) is out of scope for this note. Here we assume auth material and turn it into a session.
 
+## Contents
+
+- [Target: an IP or a name (FQDN)?](#target-an-ip-or-a-name-fqdn)
+- [Quick reference — service → tool](#quick-reference--service--tool)
+- [Linux services](#linux-services)
+- [Windows & AD services](#windows--ad-services)
+- [Database services (often a shortcut to OS exec)](#database-services-often-a-shortcut-to-os-exec)
+- [Where the creds come from](#where-the-creds-come-from)
+- [Defense / detection (put this in the report)](#defense--detection-put-this-in-the-report)
+
 ## Target: an IP or a name (FQDN)?
 
 Every client below takes the target as **either a raw IP or a hostname/FQDN** — but which one you *must* use depends on the auth method:

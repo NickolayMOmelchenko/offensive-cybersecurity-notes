@@ -16,6 +16,15 @@ echo "$DCIP $DC $DOMAIN" | sudo tee -a /etc/hosts     # so Kerberos names resolv
 
 ---
 
+## Contents
+
+- [Step 1 — Foothold & enumeration](#step-1--foothold--enumeration)
+- [Step 2 — Credential access: Kerberoasting & AS-REP roasting → hashcat](#step-2--credential-access-kerberoasting--as-rep-roasting--hashcat)
+- [Step 3 — Escalate to DCSync rights (Domain Admin-equivalent)](#step-3--escalate-to-dcsync-rights-domain-admin-equivalent)
+- [Step 4 — Domain compromise: DCSync, NTDS dump, hashcat, persistence](#step-4--domain-compromise-dcsync-ntds-dump-hashcat-persistence)
+- [Detection & defense (write this in the report)](#detection--defense-write-this-in-the-report)
+- [References](#references)
+
 ## Step 1 — Foothold & enumeration
 
 You start with **one valid domain account** (low-priv is fine), from a [password spray/capture](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md), phish, or a provided test account. First validate it and map the domain — you attack what you can see.

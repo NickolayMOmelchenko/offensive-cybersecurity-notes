@@ -4,6 +4,18 @@
 
 > **Windows vs Linux scope.** Impacket escalates on **Windows/AD**: local-admin → SYSTEM (exec tools) and domain-user → Domain Admin (credential/Kerberos/relay tools). It is **not** a local **Linux privesc** tool — for a Linux *target* use the vectors in [Enumeration & Privilege Escalation](../Linux/Enumeration%20%26%20Privilege%20Escalation.md) (GTFOBins, SUID, sudo, capabilities). Impacket only touches Linux as the *attacker* platform, or when a Linux box is domain-joined and you reuse AD creds against it.
 
+## Contents
+
+- [Naming: Example.py vs impacket-example](#naming-examplepy-vs-impacket-example)
+- [Where you run these: Linux attack box vs Windows foothold](#where-you-run-these-linux-attack-box-vs-windows-foothold)
+- [Target spec: domain/user:pass@<target> — IP or name](#target-spec-domainuserpasstarget--ip-or-name)
+- [Step 1 — Deliver Impacket to your attack box (setup)](#step-1--deliver-impacket-to-your-attack-box-setup)
+- [Step 2 — Deliver tools to a target (file transfer)](#step-2--deliver-tools-to-a-target-file-transfer)
+- [Step 3 — Escalation tools (grouped by what they get you)](#step-3--escalation-tools-grouped-by-what-they-get-you)
+- [Step 4 — More Impacket tools, with Windows-native equivalents](#step-4--more-impacket-tools-with-windows-native-equivalents)
+- [Putting it together — end-to-end delivery walkthrough](#putting-it-together--end-to-end-delivery-walkthrough)
+- [Defense / detection](#defense--detection)
+
 ## Naming: `Example.py` vs `impacket-example`
 
 The scripts have two names depending on install. Kali's package prefixes them:

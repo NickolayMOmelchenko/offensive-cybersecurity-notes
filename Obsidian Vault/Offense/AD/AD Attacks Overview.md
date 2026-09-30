@@ -2,6 +2,16 @@
 
 Index and mental model for the AD notes in this folder. AD is the identity backbone of most enterprises, so a pentest usually becomes an AD pentest. Everything here assumes an **authorized engagement** (scope, rules of engagement, written permission).
 
+## Contents
+
+- [The kill chain (how the notes fit together)](#the-kill-chain-how-the-notes-fit-together)
+- [Core toolkit (know what each is for)](#core-toolkit-know-what-each-is-for)
+- [Quick start (one set of domain creds)](#quick-start-one-set-of-domain-creds)
+- [Recurring concepts](#recurring-concepts)
+- [Defensive lens (write this in every report)](#defensive-lens-write-this-in-every-report)
+- [Notes in this folder](#notes-in-this-folder)
+- [References](#references)
+
 ## The kill chain (how the notes fit together)
 
 1. **Foothold** — one set of domain credentials or code execution on one domain-joined host. Often from phishing, a weak service, or [password spray](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md).

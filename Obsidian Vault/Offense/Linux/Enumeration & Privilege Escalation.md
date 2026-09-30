@@ -2,6 +2,14 @@
 
 Checklist for going from user shell to root on an authorized engagement. Run [LinPEAS/lse.sh](Linux%20Overview.md) to automate, but understand each vector so you can act on the output. Prefer misconfigs over kernel exploits.
 
+## Contents
+
+- [Enumeration checklist](#enumeration-checklist)
+- [Escalation vectors (map output → action)](#escalation-vectors-map-output--action)
+- [Post-root](#post-root)
+- [Impacket note (Linux as attacker, or a domain-joined box)](#impacket-note-linux-as-attacker-or-a-domain-joined-box)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+
 ## Enumeration checklist
 
 Quick copy-paste sweep — then read the annotated list below for what each finding means:

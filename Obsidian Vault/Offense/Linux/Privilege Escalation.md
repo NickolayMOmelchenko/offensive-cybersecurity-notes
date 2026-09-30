@@ -4,6 +4,19 @@ Worked exploitation for each local privesc vector — user shell → **root**. E
 
 > **Prefer misconfigurations over kernel exploits** — sudo/SUID/cron/capabilities are reliable and low-risk; kernel exploits can panic a client box. Confirm scope before anything that risks stability.
 
+## Contents
+
+- [sudo rules (sudo -l)](#sudo-rules-sudo--l)
+- [SUID / SGID binaries](#suid--sgid-binaries)
+- [Capabilities](#capabilities)
+- [Cron jobs & systemd timers](#cron-jobs--systemd-timers)
+- [Writable sensitive files](#writable-sensitive-files)
+- [NFS no_root_squash](#nfs-no_root_squash)
+- [Group memberships](#group-memberships)
+- [Kernel & service exploits (last resort)](#kernel--service-exploits-last-resort)
+- [After root](#after-root)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+
 ## sudo rules (`sudo -l`)
 
 ```bash

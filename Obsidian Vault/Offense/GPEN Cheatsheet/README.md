@@ -2,6 +2,13 @@
 
 Reference handouts for the **GPEN** certification and SANS **SEC560** course. These are static PDFs/DOCX kept here as quick lookups; the *working* notes live in the sibling folders and link back here.
 
+## Contents
+
+- [What's in this folder](#whats-in-this-folder)
+- [Exam prep workflow (the GPEN is open-book)](#exam-prep-workflow-the-gpen-is-open-book)
+- [Related vault notes](#related-vault-notes)
+- [The GPEN methodology (the phases the exam tests)](#the-gpen-methodology-the-phases-the-exam-tests)
+
 ## What's in this folder
 
 | File | Use it for |

@@ -2,6 +2,14 @@
 
 Once you have credentials or admin on one host, credential access harvests more secrets and lateral movement reuses them to reach new hosts. See [AD Attacks Overview](AD%20Attacks%20Overview.md).
 
+## Contents
+
+- [Credential access (where secrets live)](#credential-access-where-secrets-live)
+- [The two reuse primitives](#the-two-reuse-primitives)
+- [Lateral movement techniques (need admin on the target)](#lateral-movement-techniques-need-admin-on-the-target)
+- [Method (keep it disciplined on an engagement)](#method-keep-it-disciplined-on-an-engagement)
+- [Defense / detection](#defense--detection)
+
 ## Credential access (where secrets live)
 
 - **LSASS memory** — cached logons, tickets, plaintext in some configs. Dumped by Mimikatz `sekurlsa::logonpasswords`, comsvcs.dll minidump, or nanodump. Requires local admin/SeDebug.

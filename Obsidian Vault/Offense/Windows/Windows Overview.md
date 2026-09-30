@@ -2,6 +2,15 @@
 
 Index for Windows host offense: local enumeration, privilege escalation, and the PowerShell tradecraft used throughout. Domain-wide attacks live in [Active Directory](../AD/AD%20Attacks%20Overview.md).
 
+## Contents
+
+- [Notes in this folder](#notes-in-this-folder)
+- [Local enumeration](#local-enumeration)
+- [Privilege escalation vectors](#privilege-escalation-vectors)
+- [PowerShell tradecraft](#powershell-tradecraft)
+- [Credential access on Windows](#credential-access-on-windows)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+
 ## Notes in this folder
 
 - [Powershell](Powershell.md) — download-cradle / execution-policy bypass concept

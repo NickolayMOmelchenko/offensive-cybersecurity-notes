@@ -2,6 +2,13 @@
 
 Index for network-layer attacks and the pivoting skills that tie an engagement together. See [GPEN Cheatsheet](../GPEN%20Cheatsheet/README.md) for the SANS pivoting handout.
 
+## Contents
+
+- [Notes in this folder](#notes-in-this-folder)
+- [Scanning & enumeration (the front door)](#scanning--enumeration-the-front-door)
+- [Common LAN attacks (concept level)](#common-lan-attacks-concept-level)
+- [Pivoting & tunneling (turn one host into a route)](#pivoting--tunneling-turn-one-host-into-a-route)
+
 ## Notes in this folder
 
 - [VLAN Hopping](VLAN%20Hopping.md) — switch spoofing and double tagging on the link layer

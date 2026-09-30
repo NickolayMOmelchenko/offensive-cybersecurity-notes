@@ -4,6 +4,18 @@ Local escalation on a Windows host: normal/service user → **local admin / `NT 
 
 > **Authorized engagements only.** Automate the checks, but confirm each finding by hand before exploiting on a client box.
 
+## Contents
+
+- [Enumerate](#enumerate)
+- [Token-privilege abuse (usually the quickest)](#token-privilege-abuse-usually-the-quickest)
+- [Service misconfigurations](#service-misconfigurations)
+- [Registry & installer escalations](#registry--installer-escalations)
+- [UAC bypass (medium → high integrity)](#uac-bypass-medium--high-integrity)
+- [Credential hunting → escalate/pivot](#credential-hunting--escalatepivot)
+- [Deliver the payload](#deliver-the-payload)
+- [Defense / detection (for the report)](#defense--detection-for-the-report)
+- [References](#references)
+
 ## Enumerate
 
 ```powershell

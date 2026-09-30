@@ -8,6 +8,18 @@ Runs from your **Linux/Kali attack box**. Start the database so creds/loot/works
 sudo msfdb init && msfconsole -q
 ```
 
+## Contents
+
+- [Console basics](#console-basics)
+- [Validate & spray credentials over SMB](#validate--spray-credentials-over-smb)
+- [Get a shell / lateral movement](#get-a-shell--lateral-movement)
+- [Meterpreter essentials](#meterpreter-essentials)
+- [Pivoting through a session](#pivoting-through-a-session)
+- [AD / Domain Controller attacks](#ad--domain-controller-attacks)
+- [Payload generation (msfvenom)](#payload-generation-msfvenom)
+- [Detection / defense (for the report)](#detection--defense-for-the-report)
+- [References](#references)
+
 ## Console basics
 
 ```text

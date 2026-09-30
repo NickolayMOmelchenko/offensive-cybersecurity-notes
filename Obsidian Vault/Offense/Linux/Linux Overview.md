@@ -2,6 +2,15 @@
 
 Index for the Linux post-exploitation notes. Scope: what to do **after** you land a shell on a Linux host during an authorized test — orient, enumerate, escalate, and understand the impact. Getting the initial shell is a service/web problem covered elsewhere.
 
+## Contents
+
+- [Post-exploitation loop](#post-exploitation-loop)
+- [Stabilize a shell (do this first)](#stabilize-a-shell-do-this-first)
+- [Orientation one-liners](#orientation-one-liners)
+- [Tooling](#tooling)
+- [Notes in this folder](#notes-in-this-folder)
+- [Principle](#principle)
+
 ## Post-exploitation loop
 
 1. **Stabilize** the shell (below).

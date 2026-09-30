@@ -2,6 +2,16 @@
 
 Recon of the domain once you have any foothold (even an unprivileged user or just network access). Goal: build a map of principals, groups, ACLs, and services so you can find a path. See [AD Attacks Overview](AD%20Attacks%20Overview.md) for where this sits.
 
+## Contents
+
+- [Unauthenticated / from the network](#unauthenticated--from-the-network)
+- [Authenticated — from Linux](#authenticated--from-linux)
+- [SMB enumeration (445)](#smb-enumeration-445)
+- [Authenticated — from Windows (PowerView / AD module)](#authenticated--from-windows-powerview--ad-module)
+- [What to look for (the checklist)](#what-to-look-for-the-checklist)
+- [BloodHound workflow](#bloodhound-workflow)
+- [Defense / detection](#defense--detection)
+
 ## Unauthenticated / from the network
 
 The DC runs DNS + LDAP + Kerberos. Null/guest SMB sessions are often disabled now, but always worth a try; RID cycling lists users when null access exists.
