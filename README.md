@@ -28,6 +28,7 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
   - [Linux Overview](Obsidian%20Vault/Offense/Linux/Linux%20Overview.md)
   - [Enumeration & Privilege Escalation](Obsidian%20Vault/Offense/Linux/Enumeration%20%26%20Privilege%20Escalation.md)
   - [Privilege Escalation](Obsidian%20Vault/Offense/Linux/Privilege%20Escalation.md)
+  - [Container Escape](Obsidian%20Vault/Offense/Linux/Container%20Escape.md)
 - **Networking/**
   - [Networking Overview](Obsidian%20Vault/Offense/Networking/Networking%20Overview.md)
   - [Password Attacks & Brute Forcing](Obsidian%20Vault/Offense/Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)

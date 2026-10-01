@@ -52,6 +52,7 @@ find / \( -name 'id_rsa' -o -name '*.kdbx' -o -name '.env' \) 2>/dev/null
 
 - [Enumeration & Privilege Escalation](Enumeration%20%26%20Privilege%20Escalation.md) — the main checklist and the common escalation vectors
 - [Privilege Escalation](Privilege%20Escalation.md) — worked exploitation for each vector (sudo/SUID/caps/cron/NFS/docker/kernel CVEs)
+- [Container Escape](Container%20Escape.md) — breaking out of a Docker/containerd container onto the host
 
 ## Principle
 
