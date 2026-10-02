@@ -14,6 +14,7 @@ Index for network-layer attacks and the pivoting skills that tie an engagement t
 - [VLAN Hopping](VLAN%20Hopping.md) — switch spoofing and double tagging on the link layer
 - [Password Attacks & Brute Forcing](Password%20Attacks%20%26%20Brute%20Forcing.md) — dictionary/brute/spray across protocols + offline hash cracking
 - [Remote Access & Getting a Shell](Remote%20Access%20%26%20Getting%20a%20Shell.md) — SSH, WinRM/evil-winrm, RDP, SMB exec, and DB clients to turn creds into a session
+- [Pivoting & Tunneling](Pivoting%20%26%20Tunneling.md) — SSH/chisel/ligolo-ng/socat tunnels, SOCKS, multi-hop, covert channels
 
 ## Scanning & enumeration (the front door)
 
@@ -48,6 +49,8 @@ responder -I <interface> -wF
 Detection/defense for all of the above: segmentation, DHCP snooping, dynamic ARP inspection, disabling DTP, and disabling legacy name-resolution protocols.
 
 ## Pivoting & tunneling (turn one host into a route)
+
+> Quick reference below — full tooling (chisel, ligolo-ng, socat, `netsh portproxy`, multi-hop, DNS/ICMP/HTTP tunnels) is in the dedicated [Pivoting & Tunneling](Pivoting%20%26%20Tunneling.md) note.
 
 Once you own a host with a second interface, use it to reach networks you can't touch directly.
 

