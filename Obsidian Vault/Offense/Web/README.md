@@ -21,7 +21,7 @@ Web/
 
 | Note | What it covers | Size |
 | --- | --- | --- |
-| [Web Overview](Web%20Overview.md) | Methodology, subdomain and live-host recon, stack fingerprinting, WAF detection, directory/parameter/JS endpoint discovery, and an input→likely-bug triage table | index |
+| [Web Overview](Web%20Overview.md) | Methodology, recon and content/param discovery, an input→likely-bug triage table, plus the classes with no note of their own yet — **access control & IDOR**, REST/GraphQL APIs, auth & session — and a scanner/pipeline automation reference | index |
 | [XSS](XSS.md) | Reflected/stored/DOM, detection, a context→payload table, filter and WAF bypasses, weaponizing for real impact, blind XSS, tooling | medium |
 | [SQL Injection](SQL%20Injection.md) | Injection types, detection, manual UNION / error-based / blind boolean and time-based, auth bypass, per-DBMS cheat columns, file read-write and RCE, then a full `sqlmap` reference — the extraction ladder, `--level`/`--risk`, hands-off crawling, and scoped `--dump` | longest |
 | [SSRF](SSRF.md) | Where it hides, confirming it out-of-band, blind vs full-response, cloud metadata (IMDSv1 **and** the IMDSv2 token dance), filter bypasses, protocol smuggling | medium |
@@ -33,6 +33,8 @@ Web/
 1. [Web Overview](Web%20Overview.md) — recon, then use the triage table
 2. Whichever bug class the triage pointed at
 3. [RCE](RCE.md) last — it's usually where the other bugs end up
+
+The overview also carries the classes that don't have a note yet. Access control / IDOR in particular is worth reading before any of the five below — it's the most-found class in real engagements and the one tooling won't hand you.
 
 ## Related
 
