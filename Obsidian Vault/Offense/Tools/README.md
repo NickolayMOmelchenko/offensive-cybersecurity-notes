@@ -1,13 +1,15 @@
 # Tools
 
-Notes tied to a specific framework rather than to a platform or a phase. Anything here is a tool you drive across several phases of an engagement — the technique itself is documented in the platform folders.
+Notes tied to a specific tool rather than to a platform or a phase. Anything here is a tool you drive across several phases of an engagement — the technique itself is documented in the platform folders.
 
 ## Tree
 
 ```text
 Tools/
 ├── README.md       <- you are here
-└── Metasploit.md   the Metasploit Framework, end to end
+├── Metasploit.md   the Metasploit Framework, end to end
+├── tmux.md         keep scans alive, split the screen, name and log panes
+└── vim.md          edit anything on any host — and a root shell if it's in sudo -l
 ```
 
 ## Notes
@@ -15,6 +17,10 @@ Tools/
 | Note | What it covers | Size |
 | --- | --- | --- |
 | [Metasploit](Metasploit.md) | Console basics and workspace/database use, validating and spraying credentials over SMB, getting a shell (`psexec`, Impacket-backed exec modules, WinRM, SSH), pass-the-hash, Meterpreter essentials, catching a shell with a bare handler, pivoting and routing | long |
+| [tmux](tmux.md) | Keyboard tables for sessions, two- and four-pane splits, layouts, naming, navigation, zoom and `pipe-pane` logging, in an **essential** tier and an **occasional** tier (pane sync, shared sessions, nested tmux) | cheatsheet |
+| [vim](vim.md) | Keyboard tables for modes, movement, editing, search/replace, visual block and splits, plus `:set paste` and `:set ff=unix` — the two that bite. Includes **vim as a privesc primitive** when it appears in `sudo -l` | cheatsheet |
+
+> Start every long-running scan inside tmux. A four-hour `nmap -p-` that dies at hour three because the VPN flapped is the most avoidable loss on an engagement — see [tmux](tmux.md).
 
 ## Related
 

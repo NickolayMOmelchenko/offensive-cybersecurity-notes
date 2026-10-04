@@ -1,14 +1,64 @@
 # scripts
 
-Repo tooling. One script, which enforces the image rules from [CLAUDE.md](../CLAUDE.md) so that every screenshot renders both in Obsidian and on GitHub.
+Repo tooling. Two scripts: one scaffolds a new engagement, one enforces the vault's image rules.
 
 ## Tree
 
 ```text
 scripts/
-├── README.md           <- you are here
-└── check_images.py     validate every image embed in the vault
+├── README.md             <- you are here
+├── new-engagement.sh     scaffold a pentest / HTB engagement directory
+└── check_images.py       validate every image embed in the vault
 ```
+
+## new-engagement.sh
+
+The one to pull onto the attack box at the start of every engagement. No dependencies, portable bash — works on Kali and on macOS's bash 3.2.
+
+```bash
+git pull
+./scripts/new-engagement.sh "Acme Company"      # ./Projects/Acme Company/{EPT,IPT}/...
+./scripts/new-engagement.sh --htb Lame          # ./Projects/HTB/Lame/box/...
+./scripts/new-engagement.sh --help
+```
+
+### What it builds
+
+```text
+Projects/Acme Company/
+├── .gitignore                  allows only *.txt — keeps loot out of git
+├── EPT/
+│   ├── engagement.txt          authorization, contacts, infra, status log
+│   ├── findings.txt            one block per finding, written as you go
+│   ├── evidence/
+│   │   ├── credentials/credentials.txt
+│   │   ├── data/data.txt       what was reachable vs what you accessed
+│   │   └── screenshots/screenshots.txt
+│   ├── logs/commands.txt       timestamped command log
+│   ├── scans/scans.txt         naming convention, invocations, index
+│   ├── scope/scope.txt         in/out of scope, constraints, accounts
+│   └── tools/tools.txt         what you put on target, and if you removed it
+└── IPT/                        same subtree
+```
+
+Every `.txt` is a filled-in template, not an empty placeholder — the prompts are the point.
+
+### Options
+
+| Flag | Effect |
+| --- | --- |
+| `-b, --base DIR` | Where `Projects/` lives. Default `$PENTEST_BASE`, else `./Projects` |
+| `-t, --types LIST` | Comma-separated subtrees. Default `EPT,IPT`. Add your own, e.g. `-t "EPT,IPT,WEBAPP"` |
+| `--htb` | HTB mode: `<base>/HTB/<box>/box/...` |
+| `--no-gitignore` | Skip the `.gitignore` |
+| `--no-tree` | Don't print the tree at the end |
+| `-n, --dry-run` | Show what it would create, write nothing |
+
+### Behaviour worth knowing
+
+- **Idempotent.** Existing files are never overwritten — re-running reports them as `= keep`. Safe to re-run mid-engagement to add a type.
+- **The `.gitignore` allows only `*.txt`.** Scan output, screenshots, dumps, pcaps and key material are ignored by default; committing one takes a deliberate `git add -f`. Verified: `git add -A` over a tree containing an `ntds.dit`, a `.png` and an `.gnmap` stages only the `.txt` scaffolding.
+- **Client names with spaces work** — quote them.
 
 ## check_images.py
 
