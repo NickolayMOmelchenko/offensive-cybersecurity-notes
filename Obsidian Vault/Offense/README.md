@@ -9,9 +9,12 @@ Each subfolder has its own README with a tree. The platform folders also carry a
 ```text
 Offense/
 ├── README.md                       <- you are here
+├── general.md                      cross-cutting bits — file transfer, etc.
 ├── AD/                             the Active Directory attack chain (7 notes)
 ├── Linux/                          post-exploitation and root on Linux (4 notes)
 ├── Networking/                     scanning, shells, pivoting (5 notes)
+├── Privilege Escalation/           privesc: manual checklists + enum tools (7 notes)
+├── Shell/                          reverse/bind shells and catchers (3 notes)
 ├── Tools/                          framework-specific notes (1 note)
 ├── Web/                            web application bug classes (6 notes)
 ├── Windows/                        local escalation and tradecraft (3 notes)
@@ -21,11 +24,15 @@ Offense/
 
 ## Folders
 
+> Loose note: [general](general.md) — cross-cutting techniques (moving files, …) that don't belong to one folder yet.
+
 | Folder | Covers | Start with |
 | --- | --- | --- |
 | [AD](AD/README.md) | Enumeration, Kerberos, ACL abuse, lateral movement, DCSync, an end-to-end DC walkthrough | [AD Attacks Overview](AD/AD%20Attacks%20Overview.md) |
 | [Linux](Linux/README.md) | Shell stabilisation, enumeration, sudo/SUID/caps/cron escalation, container escape | [Linux Overview](Linux/Linux%20Overview.md) |
 | [Networking](Networking/README.md) | Nmap, password spraying, service→shell, SSH/SOCKS/chisel pivoting, VLAN hopping | [Networking Overview](Networking/Networking%20Overview.md) |
+| [Privilege Escalation](Privilege%20Escalation/README.md) | Manual checklists (general quick wins, credential hunting) plus automated tools: PEASS, LinEnum, linuxprivchecker, Seatbelt | [general](Privilege%20Escalation/general.md) |
+| [Shell](Shell/README.md) | Reverse/bind shell payloads, netcat, pwncat, and TTY stabilisation | [shell](Shell/shell.md) |
 | [Tools](Tools/README.md) | Metasploit: console, credential spraying, Meterpreter, pivoting, handlers | [Metasploit](Tools/Metasploit.md) |
 | [Web](Web/README.md) | Recon and triage, then XSS, SQLi, SSRF, CSRF, RCE | [Web Overview](Web/Web%20Overview.md) |
 | [Windows](Windows/README.md) | Token privileges, service misconfigs, AlwaysInstallElevated, UAC, credential hunting | [Windows Overview](Windows/Windows%20Overview.md) |
@@ -36,8 +43,8 @@ Offense/
 
 1. **Recon & scanning** — [Networking Overview](Networking/Networking%20Overview.md)
 2. **Get credentials** — [Password Attacks & Brute Forcing](Networking/Password%20Attacks%20%26%20Brute%20Forcing.md), or a web bug from [Web](Web/README.md)
-3. **Get a shell** — [Remote Access & Getting a Shell](Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)
-4. **Escalate locally** — [Linux](Linux/Privilege%20Escalation.md) or [Windows](Windows/Privilege%20Escalation.md)
+3. **Get a shell** — [Remote Access & Getting a Shell](Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md), then catch and stabilise it with [Shell](Shell/README.md)
+4. **Escalate locally** — enumerate with [Privilege Escalation](Privilege%20Escalation/README.md) tools, then [Linux](Linux/Privilege%20Escalation.md) / [Windows](Windows/Privilege%20Escalation.md)
 5. **Own the domain** — [AD](AD/AD%20Attacks%20Overview.md) → [Attacking the Domain Controller](AD/Attacking%20the%20Domain%20Controller.md)
 6. **Pivot deeper** — [Pivoting & Tunneling](Networking/Pivoting%20%26%20Tunneling.md)
 7. **Write it up** — the *Defense / detection* section of each note is the remediation half of the report

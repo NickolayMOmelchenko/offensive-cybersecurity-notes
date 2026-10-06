@@ -2,6 +2,8 @@
 
 Local escalation on a Windows host: normal/service user → **local admin / `NT AUTHORITY\SYSTEM`**. This is the deep-dive for the vectors summarised in [Windows Overview](Windows%20Overview.md). Domain-wide escalation (to Domain Admin) is separate — see [AD → Privilege Escalation](../AD/Privilege%20Escalation.md). Credential access after SYSTEM (LSASS/SAM/DPAPI) lives in [Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md).
 
+> Automate the enumeration first with [Privilege Escalation tools](../Privilege%20Escalation/README.md) (linPEAS / winPEAS / LinEnum / Seatbelt), then confirm each finding by hand below.
+
 > **Authorized engagements only.** Automate the checks, but confirm each finding by hand before exploiting on a client box.
 
 ## Contents

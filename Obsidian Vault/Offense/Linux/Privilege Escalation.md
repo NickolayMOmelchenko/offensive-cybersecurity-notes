@@ -2,6 +2,8 @@
 
 Worked exploitation for each local privesc vector — user shell → **root**. Enumerate first with the checklist and automation in [Enumeration & Privilege Escalation](Enumeration%20%26%20Privilege%20Escalation.md); this note is the "I found X, now how do I exploit it" reference. Overview and shell-stabilisation: [Linux Overview](Linux%20Overview.md).
 
+> Automate the enumeration first with [Privilege Escalation tools](../Privilege%20Escalation/README.md) (linPEAS / winPEAS / LinEnum / Seatbelt), then confirm each finding by hand below.
+
 > **Prefer misconfigurations over kernel exploits** — sudo/SUID/cron/capabilities are reliable and low-risk; kernel exploits can panic a client box. Confirm scope before anything that risks stability.
 
 ## Contents
@@ -45,7 +47,7 @@ sudo -l                                   # what can I run as root, and with wha
 ## SUID / SGID binaries
 
 ```bash
-find / -perm -4000 -type f 2>/dev/null    # SUID
+   # SUID
 find / -perm -2000 -type f 2>/dev/null    # SGID
 ```
 

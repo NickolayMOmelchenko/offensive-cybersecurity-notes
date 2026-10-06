@@ -18,6 +18,8 @@ Index for network-layer attacks and the pivoting skills that tie an engagement t
 
 ## Scanning & enumeration (the front door)
 
+> Full flag reference, all scan types and every NSE script: [nmap](../Tools/nmap.md).
+
 ```bash
 # Host discovery (ping sweep) to find live hosts
 nmap -sn <subnet>

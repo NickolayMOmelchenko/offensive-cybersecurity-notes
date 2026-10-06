@@ -6,6 +6,45 @@ Everything below verified against **nmap 7.95**. Flag text is quoted from `nmap 
 
 > Raw-socket scans (`-sS`, `-sU`, `-O`, and anything crafting packets) need root. Without it nmap silently falls back to `-sT`. Prefix with `sudo` or you are not running the scan you think you are.
 
+## Contents
+
+- [Visualize the results — XML → HTML](#visualize-the-results--xml--html)
+- [The main scan types](#the-main-scan-types)
+- [Pick the scan for the situation](#pick-the-scan-for-the-situation)
+- [Getting through a firewall — top 4](#getting-through-a-firewall--top-4)
+- [What the shorthand flags actually expand to](#what-the-shorthand-flags-actually-expand-to)
+- [Flag reference](#flag-reference)
+- [Recipes](#recipes)
+- [NSE: categories and finding a script](#nse-categories-and-finding-a-script)
+- [Blue team note](#blue-team-note)
+- [Related](#related)
+- [Appendix — all 609 NSE scripts (nmap 7.95)](#appendix--all-609-nse-scripts-nmap-795)
+
+## Visualize the results — XML → HTML
+
+Scan to **XML** (`-oX`, or `-oA` which writes it alongside the others), then turn it into a readable HTML report with **`xsltproc`** and nmap's built-in stylesheet. Far easier to skim — and to paste into a report — than raw terminal output.
+
+```bash
+# scan to XML
+nmap -sCV -oX scan.xml 10.10.10.40
+#   or -oA scans/host  -> writes scan.xml + .nmap + .gnmap in one go
+
+# convert XML -> HTML (nmap's XML already references its nmap.xsl stylesheet)
+xsltproc scan.xml -o scan.html
+xdg-open scan.html          # macOS: open scan.html — a clean, sortable report in the browser
+```
+
+Two gotchas:
+
+- **Moving the XML to another box** (e.g. your reporting machine) breaks the stylesheet reference — it points at a local `nmap.xsl`. Bake a portable copy in at scan time with `--webxml` (references the stylesheet from nmap.org over HTTPS):
+
+  ```bash
+  nmap -sCV --webxml -oX scan.xml 10.10.10.40
+  xsltproc scan.xml -o scan.html
+  ```
+
+- No `xsltproc`? It's in the `xsltproc` / `libxslt` package (`sudo apt install xsltproc`). For many hosts at once, `nmap-bootstrap-xsl` gives a prettier multi-host template, and tools like **nmap-parse-output** or importing the XML into Metasploit (`db_import scan.xml`) are alternatives — see [Recipes](#recipes) and [Metasploit](Metasploit.md).
+
 ## The main scan types
 
 ### 1. SYN scan — `-sS` (the default workhorse)
@@ -42,11 +81,28 @@ Slow by design — closed UDP ports are reported via ICMP unreachable, which hos
 
 ```bash
 sudo nmap -sn 10.10.10.0/24 -oA scans/sweep              # what's alive, no port scan
+# the best single-host check — ICMP echo only, and SHOW the packets so you can see the reply:
+sudo nmap -sn -PE --packet-trace 10.10.10.40             # confirm one host is up and watch the probe/reply
 sudo nmap -sn -PE -PS22,80,443 -PA3389 10.10.10.0/24     # custom probes when ICMP is filtered
 nmap -sL 10.10.10.0/24                                    # list targets only — sends nothing
 ```
 
 Do this first to narrow a /24 to the ten live hosts. `-sL` is the scope sanity check: it resolves and lists what you *would* scan without sending a packet.
+
+The three flags together — `-sn -PE --packet-trace` — are the clearest way to prove a single host is (or isn't) up:
+
+| Flag | Does |
+| --- | --- |
+| `-sn` | Host discovery only — **no port scan** |
+| `-PE` | Use an **ICMP echo request** (a plain ping) as the probe — the most reliable single check when ICMP isn't filtered |
+| `--packet-trace` | Print every packet **sent and received** — you literally watch the echo request go out and the reply come back |
+
+```text
+SENT (0.0030s) ICMP ... echo request ...
+RCVD (0.0051s) ICMP ... echo reply ...     <- host is up
+```
+
+`--packet-trace` is the teaching/diagnostic flag: when a host "should" be up but nmap says down, it shows you whether your probe left and whether anything answered — i.e. whether you're being firewalled (`-sn -PE` with no `RCVD` line) versus the host genuinely being offline. Drop `--packet-trace` for normal sweeps; it's noisy on a whole subnet.
 
 ### 5. Version + default scripts — `-sV -sC`
 
@@ -91,6 +147,83 @@ The `.nse` extension is optional — `--script smb-os-discovery` works identical
 | `-sY` / `-sZ` | SCTP INIT / COOKIE-ECHO | Telecom and SIGTRAN networks |
 | `-sO` | IP protocol | Which IP protocols a host answers, not ports |
 | `-b <relay>` | FTP bounce | Legacy, almost always patched |
+
+## Pick the scan for the situation
+
+Start from the goal, not the flags. The three you'll reach for most:
+
+### Thorough — "scan everything, don't let the host skip the queue"
+
+When you want full coverage and don't care about noise — a lab, HTB, or an authorized loud internal test:
+
+```bash
+sudo nmap -Pn -p- -sCV -T4 -oA scans/thorough 10.10.10.40
+```
+
+- **`-Pn`** — treat the host as **up, skip host discovery**. This is the important one. By default nmap pings first and, if there's no reply, **reports the host down and scans nothing** — and plenty of hosts (hardened Windows, anything blocking ICMP) don't answer pings while their ports are wide open. `-Pn` says "I know it's there, just scan it," so you don't miss a live host that simply refused the ping. The cost: against a genuinely dead IP, `-Pn` scans all 65535 ports anyway and is slow.
+- **`-p-`** — all 65535 ports, not just the top 1000. The interesting service is often on a high port.
+- **`-sCV`** — default scripts + version detection on whatever's open.
+- **`-T4`** — faster timing; fine on a LAN or lab, ease off on fragile targets.
+
+Rule of thumb: **if nmap says "host seems down" but you were told it's up, add `-Pn`.** It's the single most common fix for an empty scan.
+
+### Stealthy — "make less noise, stay under the radar"
+
+When detection is a concern and evading it is in scope:
+
+```bash
+sudo nmap -sS -T2 -f --scan-delay 1s -Pn 10.10.10.40
+sudo nmap -sS -T1 --max-retries 1 -p 1-1000 10.10.10.40        # slower, fewer packets
+```
+
+- **`sudo -sS`** — the **SYN / half-open** scan. It sends SYN, reads the reply, and sends RST instead of completing the handshake, so the connection is **never fully established and often isn't logged** by the application. It needs **root** (raw sockets) — that's why `sudo`. Without root nmap silently falls back to `-sT` (full connect), which *does* get logged, so for a quiet scan `sudo` is mandatory.
+- **`-T2` / `-T1`** — "polite" / "sneaky" timing: slower, fewer parallel probes, far less likely to trip rate-based IDS than the default `-T3` or a loud `-T4`.
+- **`--scan-delay 1s`** — space probes out to defeat threshold-based detection.
+- **`-f`** — fragment packets so simple signature inspection can't reassemble the probe.
+- Go further with `-D RND:5` (decoys), `-g 53` (source from a trusted port), `--spoof-mac` — see [Firewall / IDS evasion](#firewall--ids-evasion). Real stealth is slow: a `-T1` full scan can take hours, so scope the ports.
+
+> `-sS` is "stealthy" only relative to `-sT` — a modern IDS/EDR still sees a SYN scan. Treat it as "won't land in the app's own logs," not "invisible."
+
+### Fast — "give me the open ports now"
+
+When you just need to move:
+
+```bash
+sudo nmap -sS -p- --min-rate 5000 -n -Pn -oA scans/fast 10.10.10.40
+```
+
+`--min-rate 5000` pushes packets hard, `-n` skips DNS, `-Pn` skips discovery. Loud and quick — the opposite of the stealth profile above. Then enumerate only the open ports (see [Recipes](#recipes)).
+
+| Goal | Command | Key flags |
+| --- | --- | --- |
+| **Thorough** | `sudo nmap -Pn -p- -sCV -T4` | `-Pn` (don't skip "down" hosts), `-p-`, `-sCV` |
+| **Stealthy** | `sudo nmap -sS -T2 -f --scan-delay 1s` | `sudo -sS` (half-open, needs root), slow timing |
+| **Fast** | `sudo nmap -sS -p- --min-rate 5000 -n -Pn` | `--min-rate`, `-n`, `-Pn` |
+| **Gentle on a fragile host** | `sudo nmap -sS -T2 --max-retries 1 -p 1-1000` | low timing, capped retries |
+
+## Getting through a firewall — top 4
+
+When a firewall is dropping or filtering your probes, these are the four to reach for, in order. Only on engagements where evading controls is in scope. Full flag list in [Firewall / IDS evasion](#firewall--ids-evasion).
+
+```bash
+# 1. -Pn — the host blocks pings so nmap calls it "down" and skips it. Scan anyway.
+#    THE most common fix for an empty scan behind a firewall.
+sudo nmap -Pn -sS 10.10.10.40
+
+# 2. --source-port (-g) — firewalls often trust replies from DNS/Kerberos/HTTPS.
+#    Source from 53 (or 88 / 443) and the filter may wave you through.
+sudo nmap -sS --source-port 53 10.10.10.40
+
+# 3. -f — fragment the probes into tiny packets so simple stateless inspection
+#    can't reassemble and match them. --mtu <multiple of 8> for larger fragments.
+sudo nmap -sS -f 10.10.10.40
+
+# 4. -D — decoys: spray the scan from fake source IPs alongside yours (ME) so the
+#    firewall/IDS logs can't tell which is real. RND:10 = 10 random decoys.
+sudo nmap -sS -D RND:10 10.10.10.40
+```
+
+Before any of them, confirm it *is* a firewall: `--reason` shows `filtered`/`no-response`, and an **ACK scan maps the ruleset** — `sudo nmap -sA 10.10.10.40` tells you filtered vs unfiltered (not open/closed). Stack them when needed: `sudo nmap -Pn -f -g 53 -D RND:5 -T2 10.10.10.40`.
 
 ## What the shorthand flags actually expand to
 

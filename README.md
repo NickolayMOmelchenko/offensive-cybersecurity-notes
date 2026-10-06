@@ -10,6 +10,7 @@ Every folder has its own `README.md` with a tree and a one-line description of e
 
 ### Offense
 
+- [general](Obsidian%20Vault/Offense/general.md) — cross-cutting notes (moving files, …)
 - **AD/** — [README](Obsidian%20Vault/Offense/AD/README.md)
   - [AD Attacks Overview](Obsidian%20Vault/Offense/AD/AD%20Attacks%20Overview.md)
   - [Enumeration](Obsidian%20Vault/Offense/AD/Enumeration.md)
@@ -29,6 +30,18 @@ Every folder has its own `README.md` with a tree and a one-line description of e
   - [Remote Access & Getting a Shell](Obsidian%20Vault/Offense/Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)
   - [Pivoting & Tunneling](Obsidian%20Vault/Offense/Networking/Pivoting%20%26%20Tunneling.md)
   - [VLAN Hopping](Obsidian%20Vault/Offense/Networking/VLAN%20Hopping.md)
+- **Privilege Escalation/** — [README](Obsidian%20Vault/Offense/Privilege%20Escalation/README.md)
+  - [general](Obsidian%20Vault/Offense/Privilege%20Escalation/general.md)
+  - [exfiltration of secrets](Obsidian%20Vault/Offense/Privilege%20Escalation/exfiltrationofsecrets.md)
+  - [stuck?](Obsidian%20Vault/Offense/Privilege%20Escalation/stuck.md)
+  - [PEASS](Obsidian%20Vault/Offense/Privilege%20Escalation/PEASS.md)
+  - [LinEnum](Obsidian%20Vault/Offense/Privilege%20Escalation/LinEnum.md)
+  - [linuxprivchecker](Obsidian%20Vault/Offense/Privilege%20Escalation/linuxprivchecker.md)
+  - [Seatbelt](Obsidian%20Vault/Offense/Privilege%20Escalation/Seatbelt.md)
+- **Shell/** — [README](Obsidian%20Vault/Offense/Shell/README.md)
+  - [shell](Obsidian%20Vault/Offense/Shell/shell.md)
+  - [netcat](Obsidian%20Vault/Offense/Shell/netcat.md)
+  - [pwncat](Obsidian%20Vault/Offense/Shell/pwncat.md)
 - **Tools/** — [README](Obsidian%20Vault/Offense/Tools/README.md)
   - [Metasploit](Obsidian%20Vault/Offense/Tools/Metasploit.md)
 - **Web/** — [README](Obsidian%20Vault/Offense/Web/README.md)

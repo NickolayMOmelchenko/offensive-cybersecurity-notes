@@ -52,7 +52,23 @@ Every `.txt` is a filled-in template, not an empty placeholder — the prompts a
 | `--htb` | HTB mode: `<base>/HTB/<box>/box/...` |
 | `--no-gitignore` | Skip the `.gitignore` |
 | `--no-tree` | Don't print the tree at the end |
-| `-n, --dry-run` | Show what it would create, write nothing |
+| `-n, --dry-run` | Show what it would create, write nothing — **also blocks installs** |
+| `--check-tools` | Audit the toolchain and exit. Needs no client name |
+| `--install-tools` | Install what's missing. Prints the commands and asks first |
+| `-y, --yes` | Skip the install confirmation |
+| `--no-tools` | Skip the toolchain check |
+
+### Toolchain check
+
+Every scaffold run also audits the attack box and writes `<TYPE>/tools/installed-versions.txt`, so the engagement records which tool versions you actually had. Audit without scaffolding anything:
+
+```bash
+./scripts/new-engagement.sh --check-tools
+```
+
+It covers 32 tools in seven groups — core (`nmap`, `tmux`, `vim`, `git`, `curl`, `jq`, `python3`, `pipx`), wordlists (SecLists), recon (`whatweb`, `nuclei`, `subfinder`, `httpx`, `katana`), web (`ffuf`, `gobuster`, `feroxbuster`, `sqlmap`), smb (`smbclient`, `rpcclient`, `smbmap`, `nxc`, `enum4linux-ng`), ad (`impacket`, `bloodhound-python`, `responder`), crack (`hashcat`, `john`, `hydra`), exploit (`metasploit`) and pivot (`proxychains4`, `socat`).
+
+**It never installs anything unless you ask.** `--install-tools` prints every command first and waits for a `y`; `-y` skips that prompt, and `--dry-run` blocks execution regardless. Package names resolve per platform — apt on Kali/Debian, Homebrew on macOS (including `--cask` for Metasploit), with `pipx` or `git clone` fallbacks for the tools no package manager carries (`smbmap`, `nxc`, `enum4linux-ng`, `impacket`, `bloodhound`, `responder`, `whatweb`, SecLists).
 
 ### Behaviour worth knowing
 

@@ -2,6 +2,8 @@
 
 How to **authenticate into a service and get command execution** once you have valid credentials (or a hash/key). This is the "front door": you already found the port open during [scanning](Networking%20Overview.md#scanning--enumeration-the-front-door) and you have creds from a [password attack](Password%20Attacks%20%26%20Brute%20Forcing.md), capture, or a provided account. Authorized engagements only — confirm the target is in scope before you connect.
 
+> Once a shell lands, catch and stabilise it with [Shell](../Shell/README.md) — payloads, netcat, pwncat, TTY upgrade.
+
 > Getting the *creds* is a separate problem — see [Password Attacks & Brute Forcing](Password%20Attacks%20%26%20Brute%20Forcing.md). Getting *code exec* from a web/service **vulnerability** (rather than valid creds) is out of scope for this note. Here we assume auth material and turn it into a session.
 
 ## Contents

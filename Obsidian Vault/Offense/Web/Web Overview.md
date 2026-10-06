@@ -73,10 +73,14 @@ Two things worth doing before you start testing:
 
 Hidden endpoints and params are where the bugs live.
 
+> Per-tool flag references: [fuzz](../Tools/fuzz.md) (ffuf, feroxbuster, wordlists) and [gobuster](../Tools/gobuster.md).
+
 ```bash
-# directories / files
-ffuf -u https://target.tld/FUZZ -w /usr/share/seclists/Discovery/Web-Content/common.txt -mc 200,204,301,302,401,403
-feroxbuster -u https://target.tld                      # recursive
+# directories / files — feroxbuster first: it RECURSES into found dirs automatically (dirb/gobuster don't)
+feroxbuster -u https://target.tld                      # recursive by default + auto-filters wildcards; the go-to
+feroxbuster -u https://target.tld -x php,bak -d 3 -k   # extensions, depth 3, ignore TLS errors
+ffuf -u https://target.tld/FUZZ -w /usr/share/seclists/Discovery/Web-Content/common.txt -mc 200,204,301,302,401,403   # when you need matchers/filters
+gobuster dir -u https://target.tld -w /usr/share/seclists/Discovery/Web-Content/common.txt   # simple + fast, but NO recursion
 
 # hidden GET/POST parameters
 ffuf -u "https://target.tld/page?FUZZ=test" -w params.txt -fs 0        # -fs filter by size
