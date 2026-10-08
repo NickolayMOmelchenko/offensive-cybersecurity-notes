@@ -7,10 +7,16 @@ The name service — **port 53** (UDP for queries, TCP for zone transfers and bi
 ## Contents
 
 - [Discover & query](#discover--query)
+- [Subdomain enumeration](#subdomain-enumeration)
+  - [1. Passive (OSINT) — do this first, zero traffic to the target](#1-passive-osint--do-this-first-zero-traffic-to-the-target)
+  - [2. Active brute force](#2-active-brute-force)
+  - [3. Permutation / alteration — the step most people skip](#3-permutation--alteration--the-step-most-people-skip)
+  - [4. Recursive / iterative](#4-recursive--iterative)
+  - [5. Validate & get live hosts](#5-validate--get-live-hosts)
+  - [6. Virtual host discovery (different from DNS!)](#6-virtual-host-discovery-different-from-dns)
 - [Zone transfer (AXFR) — the big win](#zone-transfer-axfr--the-big-win)
 - [NSEC / NSEC3 zone walking (DNSSEC)](#nsec--nsec3-zone-walking-dnssec)
 - [Record types worth asking for](#record-types-worth-asking-for)
-- [Subdomain enumeration](#subdomain-enumeration)
 - [Reverse DNS](#reverse-dns)
 - [DNS cache snooping](#dns-cache-snooping)
 - [AD & DNS](#ad--dns)
@@ -48,6 +54,83 @@ dig @<internal-dns> target.local ANY
 ```
 
 The `search` domain in `resolv.conf` often reveals the AD domain name — the starting point for [AD & DNS](#ad--dns) below.
+
+## Subdomain enumeration
+
+When AXFR is refused (the usual case), you assemble the subdomain list from many sources. The mistake is stopping after one brute run — the techniques below each find names the others miss, so run them in order and merge. The flow: **passive → brute → permutate → recurse → validate → vhost**.
+
+### 1. Passive (OSINT) — do this first, zero traffic to the target
+
+Pulls names from certificate transparency, public DNS datasets and search indexes — the target never sees a packet, and it often returns more than brute forcing.
+
+```bash
+subfinder -d target.com -all -silent                 # aggregates ~30 sources; -all includes the slow ones
+amass enum -passive -d target.com                     # deepest passive aggregation
+assetfinder --subs-only target.com                    # quick extra source
+# certificate transparency directly:
+curl -s "https://crt.sh/?q=%25.target.com&output=json" | jq -r '.[].name_value' | sort -u
+# scrape names out of archived URLs too:
+gau --subs target.com | unfurl -u domains | sort -u
+github-subdomains -d target.com -t <token>            # names leaked in public GitHub code
+```
+
+More sources pay off: give **subfinder/amass API keys** (SecurityTrails, Shodan, Censys, VirusTotal, etc.) — they roughly double the yield. See [dorking](../Tools/dorking.md) for crt.sh and CT-log tradecraft.
+
+### 2. Active brute force
+
+Guess names against the resolver. Match the wordlist to the effort — start small, escalate.
+
+```bash
+gobuster dns -d target.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+dnsrecon -d target.com -D <wordlist> -t brt           # dnsrecon's brute mode
+# at scale — puredns/shuffledns drive massdns, wildcard-aware, tens of thousands/sec:
+puredns bruteforce best-dns-wordlist.txt target.com -r resolvers.txt
+```
+
+Wordlists: `SecLists/Discovery/DNS/` — `subdomains-top1million-5000.txt` (fast first pass) up to `-110000` (thorough), and `n0kovo_subdomains` or `best-dns-wordlist.txt` for big jobs. **Fetch a fresh resolver list** (`-r resolvers.txt`) for massdns/puredns — stale resolvers wreck accuracy.
+
+### 3. Permutation / alteration — the step most people skip
+
+Take the names you already found and generate variations — `dev-`, `dev2-`, `staging.`, `admin.`, `uat-`, region/number swaps — then resolve them. This finds the *sibling* of a real host (`api.target.com` → `api-dev.target.com`) that no wordlist contains.
+
+```bash
+# feed KNOWN subdomains in, get permutations out, then resolve them
+gotator -sub known.txt -perm permutations.txt -depth 1 -numbers 5 | puredns resolve -r resolvers.txt
+dnsgen known.txt | dnsx -silent                       # alternative generator -> fast resolver
+# altdns / ripgen do the same with different permutation logic
+```
+
+### 4. Recursive / iterative
+
+Subdomains have subdomains. Re-run passive + brute **against each discovered subdomain** (`corp.target.com` → `vpn.corp.target.com`). `subfinder` and `amass` can recurse; or loop your found list back through step 1–2.
+
+```bash
+subfinder -d target.com -recursive -silent
+```
+
+### 5. Validate & get live hosts
+
+Everything above produces *candidates* — resolve them, drop wildcards, and find which are actually serving:
+
+```bash
+# wildcard check FIRST — if *.target.com resolves, every guess "succeeds" and the run is junk
+dig +short random$RANDOM-nope.target.com              # returns an IP? -> wildcard; puredns/shuffledns filter it automatically
+# resolve candidates to live names, then probe for web:
+cat all-candidates.txt | puredns resolve -r resolvers.txt | httpx -silent -title -sc -td
+```
+
+`httpx` confirms which resolved names actually answer HTTP(S) and grabs titles/tech — the shortlist you hand to [nmap](../Tools/nmap.md) and [Web Overview](../Web/Web%20Overview.md).
+
+### 6. Virtual host discovery (different from DNS!)
+
+A server can host many sites on one IP, served by the `Host:` header — these have **no DNS record at all**, so subdomain enumeration never finds them. Once you have an IP, fuzz the Host header:
+
+```bash
+gobuster vhost -u http://<ip> --append-domain -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+ffuf -u http://<ip>/ -H "Host: FUZZ.target.com" -w <wordlist> -ac    # -ac auto-filters the default-site response
+```
+
+Staging/admin interfaces hide here precisely because they're not in DNS — see [gobuster → vhost](../Tools/gobuster.md#vhost--virtual-hosts) and [fuzz](../Tools/fuzz.md).
 
 ## Zone transfer (AXFR) — the big win
 
@@ -91,38 +174,6 @@ It's the overlooked backup to AXFR: operators lock down zone transfers but forge
 | `PTR` | IP → name (reverse lookups) |
 
 A `CNAME` pointing at a deprovisioned cloud resource is a **subdomain takeover** — register the dangling target and you own the subdomain.
-
-## Subdomain enumeration
-
-When AXFR is refused (usually), brute and scrape instead.
-
-```bash
-# brute force — gobuster is cleanest for DNS (see its note)
-gobuster dns -d target.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt
-dnsrecon -d target.com                     # multi-technique: std, brute, AXFR attempt, SRV
-dnsenum target.com                         # brute + AXFR + google scraping
-fierce --domain target.com                 # classic recursive scanner
-
-# passive — no packets to the target, pulls from certificate transparency
-curl -s "https://crt.sh/?q=%25.target.com&output=json" | jq -r '.[].name_value' | sort -u
-amass enum -passive -d target.com          # aggregates many passive sources
-subfinder -d target.com -silent            # fast passive (see Web Overview)
-```
-
-Do **passive first** (crt.sh / amass / subfinder — zero target traffic), then brute to fill gaps. See [gobuster → dns mode](../Tools/gobuster.md#dns--subdomains) for the active side and the wildcard-DNS caveat.
-
-**Check for a wildcard before trusting brute results** — if `*.target.com` resolves, every guess "succeeds" and the run is worthless:
-
-```bash
-dig +short random$RANDOM-nope.target.com    # returns an IP? -> wildcard; filter by that IP
-```
-
-**For big wordlists, resolve at scale** rather than one query at a time — massdns/puredns do tens of thousands/sec against a resolver list:
-
-```bash
-puredns bruteforce all.txt target.com -r resolvers.txt       # brute + validate, wildcard-aware
-dnsx -l hosts.txt -silent                                     # fast mass resolver (ProjectDiscovery)
-```
 
 ## Reverse DNS
 
