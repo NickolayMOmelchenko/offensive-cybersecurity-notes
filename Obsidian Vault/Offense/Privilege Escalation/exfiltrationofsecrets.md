@@ -1,6 +1,6 @@
 # Exfiltration of secrets
 
-Credential hunting on a host you already have a shell on: history files, shell config, environment, and the usual places apps leave passwords. Found creds get reused elsewhere ([password spraying](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md), [SMB](../Tools/smb.md), [AD](../AD/README.md)) or cracked offline — credential reuse is how one foothold becomes many.
+Credential hunting on a host you already have a shell on: history files, shell config, environment, and the usual places apps leave passwords. Found creds get reused elsewhere ([password spraying](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md), [SMB](../Protocols/smb.md), [AD](../AD/README.md)) or cracked offline — credential reuse is how one foothold becomes many.
 
 > Authorized testing only. Creds you find are **client data** — handle them per your engagement's rules, record where each came from in `evidence/credentials/`, and never paste them into a chat tool or pastebin.
 
@@ -127,7 +127,7 @@ Other hunters worth knowing: **mimikatz** (Windows LSASS/DPAPI — live creds an
 
 | You found | Do |
 | --- | --- |
-| A plaintext password | Try it everywhere — SSH, [SMB](../Tools/smb.md), [WinRM/RDP](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md), the DB; people reuse |
+| A plaintext password | Try it everywhere — SSH, [SMB](../Protocols/smb.md), [WinRM/RDP](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md), the DB; people reuse |
 | A password hash | Crack offline → [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) |
 | An SSH private key | `chmod 600`, `ssh -i` — see [general → SSH keys](general.md#ssh-keys) |
 | A cloud key (`.aws`, gcloud) | Enumerate the cloud account (out of host scope — confirm first) |
@@ -144,4 +144,4 @@ Record each in `evidence/credentials/` **with where it came from** — a credent
 
 ## Related
 
-[folder README](README.md) · [general](general.md) · [PEASS](PEASS.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) · [AD → Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md) · [smb](../Tools/smb.md)
+[folder README](README.md) · [general](general.md) · [PEASS](PEASS.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) · [AD → Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md) · [smb](../Protocols/smb.md)

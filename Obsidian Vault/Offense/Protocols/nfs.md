@@ -111,4 +111,4 @@ The SUID bit survives because you and the server share the same files; root on t
 
 ## Related
 
-[smb](smb.md) (the Windows-side equivalent) · [nmap](nmap.md) · [Linux Privilege Escalation](../Linux/Privilege%20Escalation.md) (`no_root_squash`) · [exfiltration of secrets](../Privilege%20Escalation/exfiltrationofsecrets.md) · [Pivoting & Tunneling](../Networking/Pivoting%20%26%20Tunneling.md) · [folder README](README.md)
+[smb](smb.md) (the Windows-side equivalent) · [nmap](../Tools/nmap.md) · [Linux Privilege Escalation](../Linux/Privilege%20Escalation.md) (`no_root_squash`) · [exfiltration of secrets](../Privilege%20Escalation/exfiltrationofsecrets.md) · [Pivoting & Tunneling](../Networking/Pivoting%20%26%20Tunneling.md) · [folder README](README.md)

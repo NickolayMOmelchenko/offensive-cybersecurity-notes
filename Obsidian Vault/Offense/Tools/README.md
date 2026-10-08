@@ -12,14 +12,14 @@ Tools/
 ├── dorking.md      search-engine recon — overlooked OSINT use cases
 ├── feroxbuster.md  recursive content discovery — the full cheatsheet
 ├── gobuster.md     dir, dns, vhost and fuzz modes
-├── nfs.md          mounting NFS exports, showmount, no_root_squash privesc
 ├── nmap.md         flag reference, scan types, and all 609 NSE scripts
-├── smb.md          which SMB tool to reach for, and its main flags
 ├── tmux.md         keep scans alive, split the screen, name and log panes
 └── vim.md          edit anything on any host — and a root shell if it's in sudo -l
 ```
 
 ## Notes
+
+> **Moved:** SMB and NFS are now in [Protocols](../Protocols/README.md) ([smb](../Protocols/smb.md), [nfs](../Protocols/nfs.md)).
 
 | Note | What it covers | Size |
 | --- | --- | --- |
@@ -28,9 +28,7 @@ Tools/
 | [feroxbuster](feroxbuster.md) | Recursive content-discovery cheatsheet: the enumeration checklist, every flag (incl. `--scan-dir-listings`, `--thorough`, collectors), filtering, and the vs-gobuster/ffuf matrix | cheatsheet |
 | [fuzz](fuzz.md) | The baseline-then-filter method, **ffuf** flags grouped by job (input, matchers, filters, calibration, HTTP, output), `FUZZ` keyword modes, a what-to-fuzz table, **feroxbuster**, wordlist picks, and a tool-comparison matrix | cheatsheet |
 | [gobuster](gobuster.md) | All modes (`dir`, `dns`, `vhost`, `fuzz`, `s3`, `gcs`, `tftp`) with their flags, the `-s` vs `-b` trap, and a gotchas table — starting with the fact that it does **not** recurse | cheatsheet |
-| [nfs](nfs.md) | NFS enumeration and attack: `showmount`, mounting exports to read contents, UID matching, and the `no_root_squash` → root privesc | cheatsheet |
 | [nmap](nmap.md) | The main scan types with samples, a grouped flag reference, what the shorthand flags actually expand to (`-A` = `-O -sV -sC --traceroute`), two-stage scan recipes, NSE categories, and an appendix listing **all 609 NSE scripts** | reference |
-| [smb](smb.md) | Tool-selection table then the main flags for **netexec**, **smbclient**, **smbmap**, **enum4linux-ng**, **rpcclient**, nmap NSE, Impacket and `smbserver.py`. Enumeration-first, with what to carry into the report | cheatsheet |
 | [tmux](tmux.md) | Keyboard tables for sessions, two- and four-pane splits, layouts, naming, navigation, zoom and `pipe-pane` logging, in an **essential** tier and an **occasional** tier (pane sync, shared sessions, nested tmux) | cheatsheet |
 | [vim](vim.md) | Keyboard tables for modes, movement, editing, search/replace, visual block and splits, plus `:set paste` and `:set ff=unix` — the two that bite. Includes **vim as a privesc primitive** when it appears in `sudo -l` | cheatsheet |
 

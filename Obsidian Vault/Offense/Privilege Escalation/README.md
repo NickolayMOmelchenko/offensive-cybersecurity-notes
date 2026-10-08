@@ -39,7 +39,7 @@ In practice: **run PEASS first**, then a second tool to catch what it rated low.
 
 ## The workflow is the same for all of them
 
-1. **Transfer** the script to the target — serve with `python3 -m http.server 80`, pull with `curl`/`wget`/`iwr`. Prefer running **in memory** (pipe to `sh`, or `execute-assembly`) to stay quiet and leave nothing to clean up. Channels: [netcat](../Shell/netcat.md), [smb](../Tools/smb.md).
+1. **Transfer** the script to the target — serve with `python3 -m http.server 80`, pull with `curl`/`wget`/`iwr`. Prefer running **in memory** (pipe to `sh`, or `execute-assembly`) to stay quiet and leave nothing to clean up. Channels: [netcat](../Shell/netcat.md), [smb](../Protocols/smb.md).
 2. **Run** it (each note has the flags).
 3. **Read** the output — these surface *candidates*, not findings.
 4. **Confirm by hand** against [Linux](../Linux/Privilege%20Escalation.md) / [Windows Privilege Escalation](../Windows/Privilege%20Escalation.md) and [GTFOBins](https://gtfobins.github.io); the manual reproduction is also your report's PoC.

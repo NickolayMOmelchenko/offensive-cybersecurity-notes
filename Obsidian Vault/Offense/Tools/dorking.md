@@ -202,4 +202,4 @@ The overlooked trick is **favicon hashing**: compute the hash of the target's fa
 
 ## Related
 
-[nmap](nmap.md) · [smb](smb.md) · [feroxbuster](feroxbuster.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [exfiltration of secrets](../Privilege%20Escalation/exfiltrationofsecrets.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
+[nmap](nmap.md) · [smb](../Protocols/smb.md) · [feroxbuster](feroxbuster.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [exfiltration of secrets](../Privilege%20Escalation/exfiltrationofsecrets.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)

@@ -6,6 +6,7 @@ The manual privesc checklist to run by hand on a fresh shell, before or alongsid
 
 ## Contents
 
+- [Finding files & folders](#finding-files--folders)
 - [Who am I, what can I reach](#who-am-i-what-can-i-reach)
 - [sudo -l](#sudo--l)
 - [SUID / SGID binaries](#suid--sgid-binaries)
@@ -15,6 +16,73 @@ The manual privesc checklist to run by hand on a fresh shell, before or alongsid
 - [Writable sensitive files](#writable-sensitive-files)
 - [Windows quick wins](#windows-quick-wins)
 - [Related](#related)
+
+## Finding files & folders
+
+Locating files is the first thing you do on a new shell — interesting configs, keys, scripts, writable spots. Only preinstalled commands below (no `find`-replacements to upload).
+
+### Linux — `find`, `locate`, `grep`, `ls`
+
+```bash
+# find by NAME (-iname = case-insensitive). 2>/dev/null hides the permission-denied noise.
+find / -iname "*.conf" 2>/dev/null           # all .conf anywhere
+find / -iname "id_rsa" 2>/dev/null           # a specific file
+find / -iname "*pass*" 2>/dev/null           # name contains "pass"
+find /home /var/www /opt -type f 2>/dev/null # only files, under certain roots
+find / -type d -iname "backup*" 2>/dev/null  # only DIRECTORIES named backup*
+
+# find by WHO owns it / what you can do to it — the privesc-relevant ones
+find / -user root -writable -type f 2>/dev/null   # root-owned files YOU can write
+find / -writable -type d 2>/dev/null              # directories you can write to
+find / -perm -4000 -type f 2>/dev/null            # SUID (see its own section)
+
+# find by TIME — spot what changed recently (often the intended vector)
+find / -mmin -30 -type f 2>/dev/null          # modified in the last 30 minutes
+find / -newer /etc/hostname -type f 2>/dev/null
+
+# locate — instant, but reads a cached DB (may be stale/missing). Update first if you can:
+updatedb 2>/dev/null; locate id_rsa
+locate "*.kdbx"
+
+# grep for content INSIDE files (recursive, case-insensitive, quiet on errors)
+grep -rniE "password|api_key|secret" /etc /var/www /home 2>/dev/null
+
+# ls the basics — -a shows hidden dotfiles, which is where configs/keys hide
+ls -la ~            # hidden files in home
+ls -la /            # top-level layout
+```
+
+`find` is always present and is the one to master; `-iname`, `-type f|d`, `-writable`, `-perm`, and `-mmin` cover almost every hunt. Always append `2>/dev/null` so permission errors don't bury the hits.
+
+### Windows — `dir`, `where`, `findstr`, `Get-ChildItem`
+
+```cmd
+:: CMD — dir /s = recurse subdirectories, /b = bare (just paths), /a = include hidden
+dir /s /b C:\*.txt                         :: every .txt on C:, full paths
+dir /s /b C:\*.kdbx C:\*.config C:\*.ini   :: several patterns
+dir /s /b /a C:\Users\*                    :: include hidden/system entries
+where /r C:\ *.exe                         :: search a tree for a filename (like `find -name`)
+where /r C:\Users id_rsa                   :: a specific file under a folder
+
+:: findstr — grep for CONTENT inside files. /s recurse, /i ignore case, /m list filenames only
+findstr /s /i /m "password" C:\*.txt C:\*.ini C:\*.config C:\*.xml
+findstr /s /i "connectionString" C:\inetpub\*.config
+```
+
+```powershell
+# PowerShell — Get-ChildItem (aliases: gci / ls / dir). -Recurse, -Force shows hidden, -Include filters
+Get-ChildItem -Path C:\ -Recurse -Include *.config,*.ini,*.kdbx -ErrorAction SilentlyContinue
+gci C:\Users -Recurse -Force -Filter "*.txt" -ErrorAction SilentlyContinue
+
+# find files by owner / recent change
+gci C:\ -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -gt (Get-Date).AddDays(-1) }
+
+# search file CONTENT (grep equivalent): Select-String
+gci C:\Users -Recurse -Include *.txt,*.xml,*.config -ErrorAction SilentlyContinue |
+    Select-String -Pattern "password|api[_-]?key" -ErrorAction SilentlyContinue
+```
+
+`-ErrorAction SilentlyContinue` (PowerShell) and sending errors nowhere is the Windows equivalent of `2>/dev/null` — without it, access-denied spam hides the results. `dir /s /b` and `where /r` are the quick CMD fallbacks when PowerShell is unavailable or logged.
 
 ## Who am I, what can I reach
 

@@ -46,7 +46,7 @@ bloodhound-python -u <user> -p <pass> -d <domain> -ns <dc-ip> -c All
 
 ## SMB enumeration (445)
 
-> Per-tool flag reference for all of these: [smb](../Tools/smb.md).
+> Per-tool flag reference for all of these: [smb](../Protocols/smb.md).
 
 SMB is the richest early source on a Windows/AD network — shares, users, password policy, and live sessions, often before you're privileged. Try it unauthenticated first, then with any creds you have.
 

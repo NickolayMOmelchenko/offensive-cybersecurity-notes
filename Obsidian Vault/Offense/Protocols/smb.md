@@ -33,7 +33,7 @@ This note is the **tool reference** — which tool to reach for and its main fla
 | **smbmap** | "What can this account read and write?" | Clean per-share READ/WRITE map, recursive listing |
 | **enum4linux-ng** | First look at a single host or DC | One command, full structured report, JSON/YAML output |
 | **rpcclient** | netexec's enumeration is blocked | Raw MSRPC queries — works when wrappers fail |
-| **nmap NSE** | Signing, dialects and vulns at scale | Already in your scan; see [nmap](nmap.md) |
+| **nmap NSE** | Signing, dialects and vulns at scale | Already in your scan; see [nmap](../Tools/nmap.md) |
 | **Impacket** | Protocol-level work and exec | Python, scriptable; see [Impacket Toolkit](../AD/Impacket%20Toolkit.md) |
 
 Null session (`-u '' -p ''`) and guest (`-u guest -p ''`) are always the first two things to try — a surprising number of hosts still allow one.
@@ -449,7 +449,7 @@ deletedomuser <name>
 
 ## nmap NSE — at subnet scale
 
-Already in your scan output; full detail in [nmap](nmap.md).
+Already in your scan output; full detail in [nmap](../Tools/nmap.md).
 
 ```bash
 sudo nmap -p445 --open 10.10.10.0/24 -oA scans/smb                      # who's listening
@@ -516,4 +516,4 @@ Quantify the share finding rather than dumping it: "the `Finance` share is reada
 
 ## Related
 
-[nmap](nmap.md) · [Metasploit](Metasploit.md) · [tmux](tmux.md) · [folder README](README.md) · [AD — Enumeration](../AD/Enumeration.md) · [Impacket Toolkit](../AD/Impacket%20Toolkit.md) · [Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) · [Remote Access & Getting a Shell](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)
+[nmap](../Tools/nmap.md) · [Metasploit](../Tools/Metasploit.md) · [tmux](../Tools/tmux.md) · [folder README](README.md) · [AD — Enumeration](../AD/Enumeration.md) · [Impacket Toolkit](../AD/Impacket%20Toolkit.md) · [Lateral Movement & Credential Access](../AD/Lateral%20Movement%20%26%20Credential%20Access.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md) · [Remote Access & Getting a Shell](../Networking/Remote%20Access%20%26%20Getting%20a%20Shell.md)

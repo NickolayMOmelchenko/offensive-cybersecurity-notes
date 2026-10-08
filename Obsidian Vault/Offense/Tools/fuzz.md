@@ -257,4 +257,4 @@ Practical split: **gobuster** for `dns`/`vhost`, **feroxbuster** for deep conten
 
 ## Related
 
-[gobuster](gobuster.md) · [nmap](nmap.md) · [smb](smb.md) · [tmux](tmux.md) (run long fuzzes detached) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SQL Injection](../Web/SQL%20Injection.md) · [RCE](../Web/RCE.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)
+[gobuster](gobuster.md) · [nmap](nmap.md) · [smb](../Protocols/smb.md) · [tmux](tmux.md) (run long fuzzes detached) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SQL Injection](../Web/SQL%20Injection.md) · [RCE](../Web/RCE.md) · [Password Attacks & Brute Forcing](../Networking/Password%20Attacks%20%26%20Brute%20Forcing.md)

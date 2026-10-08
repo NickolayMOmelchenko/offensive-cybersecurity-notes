@@ -23,7 +23,7 @@ When the obvious vectors ([general](general.md), [PEASS](PEASS.md)) turn up noth
 
 ## Reuse what you've found
 
-- **Spray found passwords everywhere** — SSH, [SMB](../Tools/smb.md), DB, sudo, other users. People reuse.
+- **Spray found passwords everywhere** — SSH, [SMB](../Protocols/smb.md), DB, sudo, other users. People reuse.
 - **Log into local services** you couldn't before: `mysql -u root -p`, `psql`, redis — DBs hold creds and sometimes give file write / RCE.
 - **Local-only ports:** `ss -tlnp` / `netstat -ano`. A service bound to `127.0.0.1` is often unauthenticated — reach it by [port-forwarding](../Networking/Pivoting%20%26%20Tunneling.md).
 

@@ -186,4 +186,4 @@ In practice: gobuster for `dns` and `vhost`, ffuf or feroxbuster for content dis
 
 ## Related
 
-[fuzz](fuzz.md) (ffuf, feroxbuster, wordlists) · [nmap](nmap.md) · [smb](smb.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SSRF](../Web/SSRF.md) · [RCE](../Web/RCE.md)
+[fuzz](fuzz.md) (ffuf, feroxbuster, wordlists) · [nmap](nmap.md) · [smb](../Protocols/smb.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SSRF](../Web/SSRF.md) · [RCE](../Web/RCE.md)

