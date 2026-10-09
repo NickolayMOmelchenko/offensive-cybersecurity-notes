@@ -13,6 +13,8 @@ Tools/
 ├── feroxbuster.md  recursive content discovery — the full cheatsheet
 ├── gobuster.md     dir, dns, vhost and fuzz modes
 ├── nmap.md         flag reference, scan types, and all 609 NSE scripts
+├── rdp.md          Remote Desktop clients: Linux↔Windows, pass-the-hash, file transfer
+├── ssh.md          scp/sftp, logins, port-forward pivots, and SSH-based persistence
 ├── tmux.md         keep scans alive, split the screen, name and log panes
 └── vim.md          edit anything on any host — and a root shell if it's in sudo -l
 ```
@@ -29,6 +31,8 @@ Tools/
 | [fuzz](fuzz.md) | The baseline-then-filter method, **ffuf** flags grouped by job (input, matchers, filters, calibration, HTTP, output), `FUZZ` keyword modes, a what-to-fuzz table, **feroxbuster**, wordlist picks, and a tool-comparison matrix | cheatsheet |
 | [gobuster](gobuster.md) | All modes (`dir`, `dns`, `vhost`, `fuzz`, `s3`, `gcs`, `tftp`) with their flags, the `-s` vs `-b` trap, and a gotchas table — starting with the fact that it does **not** recurse | cheatsheet |
 | [nmap](nmap.md) | The main scan types with samples, a grouped flag reference, what the shorthand flags actually expand to (`-A` = `-O -sV -sC --traceroute`), two-stage scan recipes, NSE categories, and an appendix listing **all 609 NSE scripts** | reference |
+| [rdp](rdp.md) | Remote Desktop clients both directions: `xfreerdp`/`rdesktop`/`remmina` from Linux, `mstsc`/`cmdkey` from Windows, RDP to a Linux `xrdp` host, pass-the-hash (Restricted Admin), drive/clipboard file transfer, and an NLA/CredSSP troubleshooting table | cheatsheet |
+| [ssh](ssh.md) | `scp`/`sftp`/`rsync` up top (incl. the `-P` vs `-p` trap), logins with password/key/cracked-passphrase, `-L`/`-R`/`-D`/`-J` port-forward pivots, and SSH-based escalation/persistence (key reuse, `authorized_keys`, agent hijack) | cheatsheet |
 | [tmux](tmux.md) | Keyboard tables for sessions, two- and four-pane splits, layouts, naming, navigation, zoom and `pipe-pane` logging, in an **essential** tier and an **occasional** tier (pane sync, shared sessions, nested tmux) | cheatsheet |
 | [vim](vim.md) | Keyboard tables for modes, movement, editing, search/replace, visual block and splits, plus `:set paste` and `:set ff=unix` — the two that bite. Includes **vim as a privesc primitive** when it appears in `sudo -l` | cheatsheet |
 

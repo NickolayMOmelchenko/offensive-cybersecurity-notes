@@ -2,6 +2,8 @@
 
 The GPEN "password attacks" phase: credential attacks across services + offline hash cracking. **Authorized engagements only.** Online brute forcing is loud and can **lock accounts / cause DoS** — confirm scope and the lockout policy before you touch a live service.
 
+> **Already have a credential?** Skip ahead — [Credentialed Enumeration & Access](../Enum/Credentialed%20Enumeration%20%26%20Access.md) turns one valid login into enumeration and access across SMB, WinRM, LDAP, FTP, SSH/SFTP, MSSQL and RDP.
+
 ## Contents
 
 - [Attack types (pick the right one)](#attack-types-pick-the-right-one)
