@@ -7,6 +7,7 @@ The name service — **port 53** (UDP for queries, TCP for zone transfers and bi
 ## Contents
 
 - [Discover & query](#discover--query)
+  - [Point tools at a specific (internal) DNS server](#point-tools-at-a-specific-internal-dns-server)
 - [Subdomain enumeration](#subdomain-enumeration)
   - [1. Passive (OSINT) — do this first, zero traffic to the target](#1-passive-osint--do-this-first-zero-traffic-to-the-target)
   - [2. Active brute force](#2-active-brute-force)
@@ -55,6 +56,30 @@ dig @<internal-dns> target.local ANY
 
 The `search` domain in `resolv.conf` often reveals the AD domain name — the starting point for [AD & DNS](#ad--dns) below.
 
+### Point tools at a specific (internal) DNS server
+
+A public resolver (`1.1.1.1`, your system default) knows **only public records** — internal zones like `target.local` and the AD SRV records exist **only on the target's own DNS server**. So aim every tool at that server. Find it first (`/etc/resolv.conf`, `ipconfig /all`, or it's usually the **DC**), then each tool specifies the server differently:
+
+| Tool | Point it at a server |
+| --- | --- |
+| `dig` | `dig @<dns-ip> target.local` |
+| `host` | `host target.local <dns-ip>` (server is the **last** arg) |
+| `nslookup` | `nslookup target.local <dns-ip>` — or interactively: `server <dns-ip>` |
+| zone transfer | `dig axfr target.local @<dns-ip>` |
+| `dnsrecon` | `dnsrecon -n <dns-ip> -d target.local` |
+| `dnsenum` | `dnsenum --dnsserver <dns-ip> target.local` |
+| `gobuster dns` | `gobuster dns -r <dns-ip>:53 -d target.local -w <list>` |
+| `puredns` / `massdns` | `-r resolvers.txt` (a file containing `<dns-ip>`) |
+| `nmap` | `nmap --dns-servers <dns-ip> ...` |
+
+Running many tools? Point your whole box at it once and drop the per-command flags:
+
+```bash
+echo 'nameserver <dns-ip>' | sudo tee /etc/resolv.conf     # all tools now resolve via the internal DNS
+```
+
+**Pivoting through a proxy?** DNS has to traverse the tunnel too — enable `proxy_dns` in `proxychains.conf`, or query the internal server directly across the pivot. See [Pivoting & Tunneling](../Networking/Pivoting%20%26%20Tunneling.md).
+
 ## Subdomain enumeration
 
 When AXFR is refused (the usual case), you assemble the subdomain list from many sources. The mistake is stopping after one brute run — the techniques below each find names the others miss, so run them in order and merge. The flow: **passive → brute → permutate → recurse → validate → vhost**.
@@ -87,7 +112,31 @@ dnsrecon -d target.com -D <wordlist> -t brt           # dnsrecon's brute mode
 puredns bruteforce best-dns-wordlist.txt target.com -r resolvers.txt
 ```
 
-Wordlists: `SecLists/Discovery/DNS/` — `subdomains-top1million-5000.txt` (fast first pass) up to `-110000` (thorough), and `n0kovo_subdomains` or `best-dns-wordlist.txt` for big jobs. **Fetch a fresh resolver list** (`-r resolvers.txt`) for massdns/puredns — stale resolvers wreck accuracy.
+A fully-specified `dnsenum` brute run, flag by flag:
+
+```bash
+dnsenum --dnsserver <ip> --enum -p 0 -s 0 \
+        -o subdomains.txt \
+        -f /opt/useful/seclists/Discovery/DNS/fierce-hostlist.txt \
+        domain.com
+#  --dnsserver <ip>  DNS server to send every query to. Use the domain's AUTHORITATIVE
+#                    name server, or in an internal/AD engagement the TARGET'S OWN DNS
+#                    (usually the Domain Controller) — a public resolver like 1.1.1.1
+#                    can't see internal zones. Get it from `dig NS domain.com` or, on a
+#                    foothold, /etc/resolv.conf / ipconfig /all.
+#  --enum            convenience preset = `--threads 5 -s 15 -w` (5 threads + whois);
+#                    the -s 0 below overrides its scrape count.
+#  -p 0              --pages: Google search pages to scrape = 0  -> no Google scraping
+#  -s 0              --scrap: max names to pull from Google   = 0  -> disable it entirely
+#                    (together, -p 0 -s 0 = brute force ONLY, no OSINT/Google noise)
+#  -o subdomains.txt --output: write results to this file (XML format)
+#  -f <wordlist>     --file: the subdomain wordlist to brute force with
+#  domain.com        the target domain
+```
+
+So this run is: *brute force `domain.com`'s subdomains from the fierce wordlist, resolving against a DNS server you choose, with Google scraping turned off and results saved to a file.* Point `--dnsserver` at the internal DNS to enumerate internal names.
+
+Wordlists: `SecLists/Discovery/DNS/` — `subdomains-top1million-5000.txt` (fast first pass) up to `-110000` (thorough), `fierce-hostlist.txt` (small/classic), and `n0kovo_subdomains` or `best-dns-wordlist.txt` for big jobs. **Fetch a fresh resolver list** (`-r resolvers.txt`) for massdns/puredns — stale resolvers wreck accuracy.
 
 ### 3. Permutation / alteration — the step most people skip
 

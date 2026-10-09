@@ -8,6 +8,7 @@ Everything below verified against **nmap 7.95**. Flag text is quoted from `nmap 
 
 ## Contents
 
+- [Run everything safe — one command per box](#run-everything-safe--one-command-per-box)
 - [Visualize the results — XML → HTML](#visualize-the-results--xml--html)
 - [The main scan types](#the-main-scan-types)
 - [Pick the scan for the situation](#pick-the-scan-for-the-situation)
@@ -19,6 +20,38 @@ Everything below verified against **nmap 7.95**. Flag text is quoted from `nmap 
 - [Blue team note](#blue-team-note)
 - [Related](#related)
 - [Appendix — all 609 NSE scripts (nmap 7.95)](#appendix--all-609-nse-scripts-nmap-795)
+
+## Run everything safe — one command per box
+
+Copy-paste, swap the IP, let it run. Each is a **single pass** that throws every non-destructive flag and script at the host: all 65535 TCP ports, the UDP ports that actually matter for that OS, version + OS detection, and every NSE script that is **safe** — nothing in `intrusive`, `dos`, `brute`, `exploit`, `fuzzer`, `broadcast` or `external`, so nothing crashes a service, locks an account, changes state, or phones a third party. Authorized targets only.
+
+### Windows box
+
+```bash
+sudo nmap -Pn -sS -sU -sV -O --version-all --osscan-guess \
+  -p T:1-65535,U:53,88,123,135,137,138,161,389,445,500,1434,1900,4500,5353,5355 \
+  --script "(default or discovery or safe or vuln) and not (intrusive or dos or brute or exploit or fuzzer or broadcast or external)" \
+  -T4 --min-rate 1000 --open --reason -oA scans/win-full 10.10.10.40
+```
+
+### Linux box
+
+```bash
+sudo nmap -Pn -sS -sU -sV -O --version-all --osscan-guess \
+  -p T:1-65535,U:53,67,69,111,123,161,500,514,520,2049,5353 \
+  --script "(default or discovery or safe or vuln) and not (intrusive or dos or brute or exploit or fuzzer or broadcast or external)" \
+  -T4 --min-rate 1000 --open --reason -oA scans/linux-full 10.10.10.40
+```
+
+The two differ only in the **UDP port list** — the TCP sweep is all ports on both, so the service lands wherever it's hiding. Windows adds the SMB/NetBIOS/LDAP/Kerberos/MSRPC/mDNS-LLMNR set (137/138/389/88/135/5353/5355); Linux adds rpcbind/NFS/TFTP/syslog/RIP (111/2049/69/514/520). Run the other list too if you're not sure what you're looking at — the extra ports just come back closed.
+
+**Why these flags** — `-Pn` so a host that blocks ping isn't written off as down (the [most common cause of an empty scan](#getting-through-a-firewall--top-4)); `-sS -sU` cover TCP and UDP in one pass, with UDP capped at the ports each OS actually serves (never `-sU -p-` — see [The main scan types](#the-main-scan-types)); `-sV --version-all` and `-O --osscan-guess` identify every service and the OS; the script filter runs the whole safe/default/discovery/vuln set while the `not (...)` clause strips anything that could take the box down or alter it. `--open --reason` keep the output to what answered and why; `-oA` writes all three formats.
+
+**It is slow** — a full TCP + UDP pass with OS/version detection and scripts can take a long while per host; that's the cost of one-command completeness. For a fast loop, split it — a quick `-p-` sweep, then `-sCV` on just the open ports — see [Recipes](#recipes). Drop `--version-all` first if you want most of the speed back.
+
+**It is not quiet** — this is the opposite of a stealth scan. When detection is a concern, see [Pick the scan for the situation](#pick-the-scan-for-the-situation).
+
+**To go further, separately and in scope** — the risky checks are left out on purpose. Once you know they're allowed, run them on their own: `brute` scripts (lockout risk), `vuln` without the `safe` filter, or `exploit` scripts. See [NSE: categories and finding a script](#nse-categories-and-finding-a-script).
 
 ## Visualize the results — XML → HTML
 
